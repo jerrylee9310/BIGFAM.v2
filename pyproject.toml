@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bigfam"
+version = "0.1.0"
+description = "BIGFAM core package (src/bigfam-backed workspace)"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Jerry Lee" }
+]
+dependencies = [
+  "numpy",
+  "pandas",
+  "scipy",
+  "matplotlib",
+  "seaborn",
+  "scikit-learn",
+  "tqdm",
+  "statsmodels",
+  "pyyaml",
+]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["bigfam"]

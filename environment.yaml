@@ -1,0 +1,25 @@
+name: bigfam
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - numpy
+  - pandas
+  - scipy
+  - matplotlib
+  - seaborn
+  - jupyter
+  - ipykernel
+  - scikit-learn
+  - tqdm
+  - statsmodels
+  - pyyaml
+  - pytest
+  - ruff
+  - pip
+  - pip:
+    - -e .
+    - lxml==6.0.2
+    - polars==1.37.0
+    - polars-runtime-32==1.37.0
