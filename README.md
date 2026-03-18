@@ -4,18 +4,15 @@
   <img src="figures/Fig1.png" alt="BIGFAM overview figure">
 </p>
 
-BIGFAM is a family relationship regression toolkit for estimating familial correlation and decomposing it into genetic and shared environmental components without genotype.
+BIGFAM is a variance components analysis toolkit from relatives phenotype without genotype. This model does not require genotype information and uses only phenotype and familial relationship data as input.
 
 ## Overview
 
 The current package supports:
 
-- loading phenotype, relationship, and optional covariate tables
-- estimating familial correlation by DOR or relationship group
 - handling both continuous and binary traits
-- running slope tests for environmental decay
-- estimating variance components such as `V_G`, `V_S`, and `w_S`
-- running relationship-level follow-up analyses for X-variance workflows
+- estimating familial correlation (by DOR or relationship group)
+- estimating variance components (genetic, shared environmental, and X chromosome)
 
 The main user-facing entry point is the `BIGFAM` class:
 
@@ -24,18 +21,6 @@ from bigfam import BIGFAM
 ```
 
 ## Software Requirements
-
-- Python 3.10
-- `numpy`
-- `pandas`
-- `scipy`
-- `matplotlib`
-- `seaborn`
-- `scikit-learn`
-- `tqdm`
-- `statsmodels`
-- `pyyaml`
-- Jupyter environment for notebook-based walkthroughs
 
 The full environment is defined in [`environment.yaml`](./environment.yaml).
 
@@ -61,12 +46,7 @@ The recommended starting point is the notebook quickstart:
 - Open [`notebook/quickstart.ipynb`](./notebook/01.quickstart.ipynb)
 - Run it with a kernel that uses the project environment
 
-The notebook uses the shipped fixture data under [`data/test`](./data/test) and walks through:
-
-1. loading sample data
-2. estimating familial correlations
-3. running the slope test
-4. estimating variance components
+The notebook uses the shipped fixture data under [`data/test`](./data/test).
 
 You can also start directly from Python:
 
@@ -75,6 +55,9 @@ from bigfam import BIGFAM
 
 model = BIGFAM(verbose=False)
 
+# Variance partitioning
+
+# step 1. load data
 model.load_data(
     pheno_file="data/test/continuous.tsv",
     rel_file="data/test/relationship.tsv",
@@ -84,11 +67,15 @@ model.load_data(
     trait_type="continuous",
 )
 
+# step 2. estimate phenotypic correlation
 df_corr = model.estimate_correlations(
     group_by="DOR",
 )
 
+# step 3. classify shared environmental decay pattern
 slope_result = model.run_slope_test()
+
+# step 4. partitioning variance components
 var_result = model.estimate_variance_components()
 ```
 
