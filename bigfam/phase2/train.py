@@ -1,7 +1,7 @@
 """Offline training: simulated data -> the w_S ridge calibrator.
 
 Not part of the inference path. Inference only loads the artifact this writes
-(artifacts/ws_calibration.json); run it with `scripts/train_phase2.py`.
+(bigfam/artifacts/ws_calibration.json); run it with `scripts/train_phase2.py`.
 """
 from __future__ import annotations
 
@@ -38,13 +38,6 @@ def train_calibration(train_df, seed: int = SEED) -> CalibrationCoef:
         ridge_alpha=float(ridge.alpha_),
         clip=tuple(CLIP),
     )
-
-
-def calibrate_predict(df, calib: CalibrationCoef) -> np.ndarray:
-    """Calibrated w_S for a whole DataFrame (batch twin of calibrate.calibrate_ws)."""
-    lo, hi = calib.clip
-    x_std = (df[FEAT_ALL].values - calib.scaler_mean) / calib.scaler_scale
-    return np.clip(calib.ridge_intercept + x_std @ calib.ridge_coef, lo, hi)
 
 
 def train_all(out_dir) -> CalibrationCoef:

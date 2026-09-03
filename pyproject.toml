@@ -5,16 +5,30 @@ build-backend = "hatchling.build"
 [project]
 name = "bigfam"
 version = "0.1.0"
-description = "BIGFAM: relative-pair genetic/shared-environment variance decomposition (Phase 1->2->3)"
+description = "Genetic and shared-environment variance decomposition from relative pairs, without genotypes"
 readme = "README.md"
 requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Jaeeun Lee" },
+    { name = "Buhm Han" },
+]
+keywords = ["genetics", "heritability", "shared environment", "variance decomposition"]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
 dependencies = [
     "numpy",
     "pandas",
     "scipy",
     "scikit-learn",
-    "joblib",
 ]
+
+[project.urls]
+Repository = "https://github.com/jerrylee9310/BIGFAM.v2"
 
 [project.optional-dependencies]
 dev = ["pytest"]
@@ -22,3 +36,6 @@ parquet = ["pyarrow"]   # optional: load_pairs prefers .parquet over .csv when p
 
 [tool.hatch.build.targets.wheel]
 packages = ["bigfam"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"bigfam/artifacts/ws_calibration.json" = "bigfam/artifacts/ws_calibration.json"

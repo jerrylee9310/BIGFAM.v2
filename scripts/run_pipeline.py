@@ -10,12 +10,10 @@ build yourself, call the three phases directly -- see examples/quickstart.py.
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 
 import bigfam
 from bigfam.io import load_pairs, load_artifacts, save_rho, save_decomposition
-
-DEFAULT_ARTIFACTS = Path(__file__).resolve().parent.parent / "artifacts"
+from bigfam.io.load import DEFAULT_ARTIFACTS
 
 
 def run(data_dir, name, pheno_type, artifacts=DEFAULT_ARTIFACTS,
@@ -41,7 +39,7 @@ def main():
     ap.add_argument("--cov-cols", nargs="*", default=[],
                     help="covariate columns to adjust for (default: none)")
     ap.add_argument("--artifacts", default=str(DEFAULT_ARTIFACTS),
-                    help="directory holding ws_calibration.json (default: artifacts/)")
+                    help="directory holding ws_calibration.json (default: the packaged one)")
     ap.add_argument("--out", default=None, help="write result TSVs here")
     args = ap.parse_args()
 

@@ -61,7 +61,7 @@ V_G=0.5460 (z 8.02)  V_S=0.1742 (z 4.66)
 import bigfam
 from bigfam.io import load_artifacts
 
-calib  = load_artifacts("artifacts/")
+calib  = load_artifacts()          # the packaged Phase 2 calibration
 rho    = bigfam.estimate_rho(pairs, cov, pheno, "continuous", ["age", "sex"])
 ws     = bigfam.estimate_ws(rho, calib)
 result = bigfam.decompose(rho, ws)
@@ -79,7 +79,7 @@ print(result.w_s_cal, (result.wci_lo, result.wci_hi))
 | path | |
 |---|---|
 | `bigfam/` | the package — `phase1/`, `phase2/`, `phase3/`, plus shared `core/` and `io/` |
-| `artifacts/ws_calibration.json` | trained Phase 2 coefficients, the only file inference reads; rebuild with `scripts/train_phase2.py` |
+| `bigfam/artifacts/ws_calibration.json` | trained Phase 2 coefficients, the only file inference reads; rebuild with `scripts/train_phase2.py` |
 | `examples/` | `quickstart.py`, the toy dataset and its generator |
 | `scripts/` | `run_pipeline.py` (estimate), `train_phase2.py` (retrain) |
 | `tests/` | `pip install -e ".[dev]"`, then `pytest tests/` |

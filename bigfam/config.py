@@ -11,7 +11,6 @@ import numpy as np
 
 # ── model structure (fixed) ──────────────────────────────────────────────────
 D = 3                                   # number of DOR levels (fixed)
-W_G = 0.5                               # genetic decay per DOR step (biology, fixed)
 
 # slope GLS design (Phase 2 1a): rows = DOR 1,2,3
 H = np.column_stack([np.ones(3), [-1.0, -2.0, -3.0]])  # (3, 2), cols [1, -d]

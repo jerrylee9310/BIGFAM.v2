@@ -4,7 +4,7 @@
     import bigfam
     from bigfam.io import load_artifacts
 
-    calib  = load_artifacts("artifacts/")
+    calib  = load_artifacts()
     rho    = bigfam.estimate_rho(pairs, cov, pheno, "continuous")  # Phase 1
     ws     = bigfam.estimate_ws(rho, calib)                        # Phase 2
     result = bigfam.decompose(rho, ws)                             # Phase 3

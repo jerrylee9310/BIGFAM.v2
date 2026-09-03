@@ -55,7 +55,7 @@ from bigfam.io import load_pairs, load_artifacts
 ```python
 # Load data
 pairs, cov, pheno = load_pairs("examples/toy_data", "height", "continuous")
-calib = load_artifacts("artifacts/")        # the trained w_S model; load it once
+calib = load_artifacts()                    # the packaged w_S model; load it once
 ```
 
 ```python

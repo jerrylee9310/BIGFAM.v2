@@ -11,6 +11,7 @@ from __future__ import annotations
 import numpy as np
 
 from ...config import WS_PROFILE, CHI2_95
+from ...core.design import design_matrix
 from ...core.nnls import nnls_2d_batch
 
 
@@ -19,7 +20,7 @@ def profile_feats_batch(rho_all, Sigma_invs):
     N, K = len(rho_all), len(WS_PROFILE)
     ell = np.zeros((N, K))
     for k, ws in enumerate(WS_PROFILE):
-        X_k = np.array([[0.5, 1.0], [0.25, ws], [0.125, ws ** 2]])
+        X_k = design_matrix(ws)
         ATA = np.einsum("ia,nij,jb->nab", X_k, Sigma_invs, X_k)
         ATz = np.einsum("ia,nij,nj->na", X_k, Sigma_invs, rho_all)
         beta = nnls_2d_batch(ATA, ATz)

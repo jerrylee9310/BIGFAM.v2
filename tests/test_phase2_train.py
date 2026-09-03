@@ -1,10 +1,8 @@
-"""Calibration: save/load round-trip and batch prediction (no full training)."""
+"""Calibration artifact: save/load round-trip (no full training)."""
 import numpy as np
-import pandas as pd
 
 from bigfam.types import CalibrationCoef
 from bigfam.phase2.features import FEAT_ALL
-from bigfam.phase2.train import calibrate_predict
 from bigfam.io.save import save_artifacts
 from bigfam.io.load import load_artifacts
 
@@ -29,13 +27,3 @@ def test_round_trip(tmp_path):
     np.testing.assert_allclose(calib2.scaler_mean, calib.scaler_mean)
     np.testing.assert_allclose(calib2.ridge_coef, calib.ridge_coef)
     np.testing.assert_allclose(calib2.ridge_intercept, calib.ridge_intercept)
-
-
-def test_calibrate_predict_in_range():
-    rs = np.random.RandomState(1)
-    df = pd.DataFrame({name: rs.normal(size=32) for name in FEAT_ALL})
-
-    pred = calibrate_predict(df, _make_calib())
-
-    assert np.all(np.isfinite(pred))
-    assert np.all((0.01 <= pred) & (pred <= 0.99))

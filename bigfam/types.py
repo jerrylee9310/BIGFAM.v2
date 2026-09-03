@@ -54,7 +54,7 @@ class Decomposition:
 # ── learned-coefficient containers (artifacts) ───────────────────────────────
 @dataclass(frozen=True)
 class CalibrationCoef:
-    """Trained Phase 2 coefficients, loaded from artifacts/ws_calibration.json.
+    """Trained Phase 2 coefficients, loaded from bigfam/artifacts/ws_calibration.json.
 
     w_S_cal = clip(ridge(standardized x)), x being the 24 features in
     feature_order. Written by bigfam.phase2.train, read by bigfam.io.load_artifacts.

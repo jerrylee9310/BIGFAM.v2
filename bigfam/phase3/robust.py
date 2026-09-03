@@ -14,6 +14,7 @@ from __future__ import annotations
 import numpy as np
 
 from ..config import WS_PROFILE, CHI2_95
+from ..core.design import design_matrix
 from ..core.nnls import nnls_2d
 
 
@@ -24,7 +25,7 @@ def profile_ci(rho_hat, Sigma_hat):
     K = len(WS_PROFILE)
     ell = np.zeros(K)
     for k, ws in enumerate(WS_PROFILE):
-        X = np.array([[0.5, 1.0], [0.25, ws], [0.125, ws * ws]])
+        X = design_matrix(ws)
         beta = nnls_2d(X.T @ Sinv @ X, X.T @ Sinv @ rho_hat)
         e = rho_hat - X @ beta
         ell[k] = e @ Sinv @ e

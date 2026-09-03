@@ -26,8 +26,8 @@ CalibrationCoef  feature_order  scaler_mean  scaler_scale  ridge_coef
 ## `bigfam.io`
 
 ```python
-load_pairs(data_dir, name, pheno_type)  -> (pairs, cov, pheno)   # layout: 01-usage.md
-load_artifacts(artifacts_dir)           -> CalibrationCoef
+load_pairs(data_dir, name, pheno_type)  -> (pairs, cov, pheno)   # layout below
+load_artifacts(artifacts_dir=packaged)  -> CalibrationCoef
 save_rho(rho, out_dir)                  # rho_hat.tsv, sigma_hat.tsv
 save_decomposition(result, out_dir)     # decomposition.tsv
 save_artifacts(calib, out_dir)          # ws_calibration.json
@@ -82,12 +82,12 @@ that is not.
 ### Many phenotypes
 
 Nothing is cached between calls and Phase 1 dominates, so loop over traits and
-parallelise with `joblib` if it is slow.
+parallelise the loop if it is slow.
 
 ### Retrain the calibration
 
 ```bash
-.venv/bin/python scripts/train_phase2.py --out artifacts/
+.venv/bin/python scripts/train_phase2.py
 ```
 
 40,000 simulated draws, seed 42, about a minute. A retrained artifact shifts

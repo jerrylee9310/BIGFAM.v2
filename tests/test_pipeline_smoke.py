@@ -1,7 +1,4 @@
-"""End-to-end smoke + Phase3/Phase2 NNLS consistency.
-
-The artifact-dependent smoke test is skipped if artifacts/ has not been built.
-"""
+"""End-to-end smoke + Phase3/Phase2 NNLS consistency."""
 from pathlib import Path
 
 import numpy as np
@@ -13,7 +10,7 @@ from bigfam.core.design import design_matrix
 from bigfam.phase3.refit import refit_fixed_ws
 
 ROOT = Path(__file__).resolve().parents[1]
-ARTIFACTS = ROOT / "artifacts"
+ARTIFACTS = ROOT / "bigfam" / "artifacts"
 TOY_DATA = ROOT / "examples" / "toy_data"
 
 

@@ -59,7 +59,7 @@ def make_synthetic_pairs(v_g=V_G_TRUE, v_s=V_S_TRUE, w_s=W_S_TRUE,
 
 def main():
     pairs, cov, pheno = make_synthetic_pairs()
-    calib = load_artifacts("artifacts/")
+    calib = load_artifacts()
 
     rho = bigfam.estimate_rho(pairs, cov, pheno, "continuous", cov_cols=[])   # Phase 1
     ws = bigfam.estimate_ws(rho, calib)                                       # Phase 2
