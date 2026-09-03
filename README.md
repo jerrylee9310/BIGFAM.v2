@@ -1,32 +1,11 @@
 # BIGFAM
 
-How much of the resemblance between relatives is genetic (`V_G`), and how much
-is shared environment (`V_S`)? BIGFAM answers that from phenotypes and family
-structure alone — no genotype data.
+<img src="docs/img/fig1.png" alt="Genetic vs. shared-environmental decay across degree of relatedness, under four assumptions: AE (no shared environment), ACE with constant, step, or decaying V_S" width="820">
 
-Genetic resemblance halves with every degree of relatedness; shared environment
-fades at an unknown rate `w_S`. They decay differently, and that difference is
-what separates them:
-
-```text
-rho_d = 0.5^d * V_G + w_S^(d-1) * V_S,   d = 1, 2, 3
-```
-
-Estimation runs in three phases, each taking only the previous one's output:
-
-```text
-Phase 1   relative pairs            ->  rho_hat, Sigma_hat
-Phase 2   rho_hat, Sigma_hat        ->  w_S
-Phase 3   rho_hat, Sigma_hat, w_S   ->  V_G, V_S, conditional SE, w_S CI
-```
-
-- [Install](#install)
-- [Run it](#run-it)
-- [Use it in Python](#use-it-in-python)
-- [Repository map](#repository-map)
-- [Documentation](#documentation)
-- [References](#references)
-- [License](#license)
+BIGFAM estimates genetic (`V_G`) and shared-environmental (`V_S`) variance
+from relatives' phenotypes and family structure alone — no genotype data.
+Where most methods fix how shared environment decays with relatedness (none,
+constant, or a step), BIGFAM estimates that decay rate (`w_S`) from the data.
 
 ## Install
 
@@ -77,7 +56,7 @@ print(result.w_s_cal, (result.wci_lo, result.wci_hi))
 
 ## Repository map
 
-| path | |
+| Path | Contents |
 |---|---|
 | `bigfam/` | the package — `phase1/`, `phase2/`, `phase3/`, plus shared `core/` and `io/` |
 | `bigfam/artifacts/ws_calibration.json` | trained Phase 2 coefficients, the only file inference reads; rebuild with `scripts/train_phase2.py` |
@@ -88,7 +67,7 @@ print(result.w_s_cal, (result.wci_lo, result.wci_hi))
 
 ## Documentation
 
-| | |
+| Doc | Covers |
 |---|---|
 | [docs/01-usage.md](docs/01-usage.md) | Run it, and the shape of the input |
 | [docs/02-results.md](docs/02-results.md) | What the output means |
