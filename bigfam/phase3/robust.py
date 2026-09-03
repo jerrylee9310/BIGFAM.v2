@@ -1,15 +1,13 @@
-"""Phase 3 profile-likelihood CI for w_S.
+"""Profile-likelihood 95% CI for w_S.
 
-For each w on WS_PROFILE, fit the fixed-w NNLS GLS (same solver as refit) and read the
-loss ell = e^T Sigma^-1 e. The profile 95% w-CI is {w : ell <= ell_min + 3.84}.
+For each w on the WS_PROFILE grid, fit the same fixed-w NNLS as refit.py and read
+the loss ell = e^T Sigma^-1 e. The CI is {w : ell <= ell_min + CHI2_95}.
 
-Whether that CI excludes 0.5 is the identifiability read-out: at w_S = 0.5 the shared-env
-column is exactly twice the genetic one, so X(w) is rank 1 and (V_G, V_S) are not
-separable. Excluding 0.5 is the LR test of H0: w_S = 0.5 at chi^2_{1,.95} -- the
-threshold comes from the test, not from tuning. No label is emitted; where to cut the
-interval belongs to the analysis, not the estimator.
-
-Grid uses UN-ridged A (no refit ridge) so the loss matches the validated reference.
+Read identifiability off this interval: at w_S = 0.5 the shared-environment column
+of X(w) is exactly twice the genetic one, so the design is rank 1 and (V_G, V_S)
+cannot be separated. A CI excluding 0.5 is therefore the likelihood-ratio test of
+H0: w_S = 0.5. No pass/fail label is emitted -- where to cut the interval is the
+analysis's call.
 """
 from __future__ import annotations
 
@@ -36,21 +34,3 @@ def profile_ci(rho_hat, Sigma_hat):
     hi = WS_PROFILE[K - 1 - in_ci[::-1].argmax()]
     return float(lo), float(hi)
 
-
-# ── self-check ────────────────────────────────────────────────────────────────
-def _demo():
-    # clean shared-env signal at w=0.7: CI should sit around 0.7 and exclude 0.5
-    X = np.array([[0.5, 1.0], [0.25, 0.7], [0.125, 0.49]])
-    Sig = np.diag([0.004, 0.004, 0.004]) ** 2
-    lo, hi = profile_ci(X @ np.array([0.5, 0.2]), Sig)
-    assert 0.01 <= lo <= hi <= 0.99, (lo, hi)
-    assert not (lo <= 0.5 <= hi), f"identified case should exclude 0.5: {(lo, hi)}"
-
-    # no shared env (V_S=0): w_S is unplaceable, so the CI must cover 0.5
-    lo0, hi0 = profile_ci(X @ np.array([0.5, 0.0]), Sig)
-    assert lo0 <= 0.5 <= hi0, f"V_S=0 should cover 0.5: {(lo0, hi0)}"
-    print("profile_ci self-checks passed", (lo, hi), (lo0, hi0))
-
-
-if __name__ == "__main__":
-    _demo()

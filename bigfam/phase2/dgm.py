@@ -1,13 +1,12 @@
-"""Phase 2 training simulation DGP (offline only).
+"""Simulated data for offline Phase 2 training (not used at inference time).
 
     rho_true_d = 0.5^d * V_G + w_S^{d-1} * V_S,   d = 1, 2, 3
-    rho_hat    ~ N(rho_true, Sigma)   (cholesky)
+    rho_hat    ~ N(rho_true, Sigma)
 
-The WIDE step1 space (generate_training_frame_wide) is what ws_calibration.json
-is trained on: w_S ~ U(0.01, 0.99) continuous, (V_G,V_S) ~ Dirichlet(1,1,1),
-sd ~ U(0.001, 0.10) unordered, Sigma = diag(sd) R diag(sd) with R a free 3-param
-positive correlation (rejection-sampled to PSD). See scratch step2a/2b. The mean/
-noise primitives (rho_true_batch, m_batch, sample_rho_hats) are DGP-agnostic.
+The shipped calibration is trained on a deliberately wide draw so it stays
+usable across traits: w_S ~ U(0.01, 0.99), (V_G, V_S) ~ Dirichlet(1, 1, 1),
+per-DOR sd ~ U(0.001, SIGMA_HI), and Sigma = diag(sd) R diag(sd) with R a free
+positive correlation matrix (resampled until PSD).
 """
 from __future__ import annotations
 
@@ -19,21 +18,16 @@ from .features import compute_feature_dict, FEAT_ALL
 
 
 def sample_rho_hats(rho_true, Sigmas, rng):
+    """Draw rho_hat ~ N(rho_true, Sigma) per row. rho_true: (N, 3) -> (N, 3)."""
     L = np.linalg.cholesky(Sigmas)
     z = rng.standard_normal((len(rho_true), 3))
     return rho_true + np.einsum("nij,nj->ni", L, z)
 
 
-def rho_true_batch(w_S, V_G, V_S):
-    d = np.arange(1, 4)
-    return 0.5 ** d[None, :] * V_G[:, None] + w_S ** (d - 1)[None, :] * V_S[:, None]
+def rho_true_batch(V_G, V_S, w_S):
+    """Noise-free similarity curve. V_G, V_S, w_S each (N,) -> (N, 3).
 
-
-def m_batch(V_G, V_S, w_S):
-    """Per-sample mean signal. V_G, V_S, w_S each (N,) -> (N, 3).
-
-    m[d] = 0.5^d * V_G + w_S^(d-1) * V_S,  d = 1, 2, 3.
-    Vector-w_S twin of rho_true_batch (which takes a scalar w_S).
+    rho_d = 0.5^d * V_G + w_S^(d-1) * V_S,  d = 1, 2, 3.
     """
     V_G = np.asarray(V_G, float)
     V_S = np.asarray(V_S, float)
@@ -42,7 +36,7 @@ def m_batch(V_G, V_S, w_S):
     return (0.5 ** d)[None, :] * V_G[:, None] + (w_S[:, None] ** (d - 1)[None, :]) * V_S[:, None]
 
 
-# ── WIDE DGP (shipped artifact) ──────────────────────────────────────────────
+# ── scenario draw ────────────────────────────────────────────────────────────
 def _psd_ok(r):
     """r: (N, 3) = [r12, r13, r23]. True where the correlation matrix is PSD."""
     a, b, c = r[:, 0], r[:, 1], r[:, 2]
@@ -64,9 +58,12 @@ def _free_corr(rng, N):
     return R
 
 
-def sample_scenarios_wide(rng, N):
-    """Wide step1-style draw. Returns (w, V_G, V_S, Sigmas). Draw ORDER is the
-    frozen contract (w, Dirichlet fold, free corr, sd) -- do not reorder."""
+def sample_scenarios(rng, N):
+    """Draw N scenarios -> (w_S, V_G, V_S, Sigmas).
+
+    The draw ORDER (w, Dirichlet fold, correlation, sd) fixes what a given seed
+    produces -- reordering it changes the shipped artifact.
+    """
     w = rng.uniform(0.01, 0.99, N)
 
     u = rng.uniform(0.0, 1.0, N)                        # Dirichlet(1,1,1) on (V_G,V_S)
@@ -81,20 +78,18 @@ def sample_scenarios_wide(rng, N):
     return w, V_G, V_S, Sigmas
 
 
-def generate_training_frame_wide(seed=SEED, n=N_SIM) -> pd.DataFrame:
-    """Wide-DGP training frame (24 features + w_S_true + V_G/V_S, all 'train').
+def generate_training_frame(seed=SEED, n=N_SIM) -> pd.DataFrame:
+    """The training frame ws_calibration.json is fit on.
 
-    This is the frame ws_calibration.json is fit on. Reproduces the scratch
-    step2 prototype exactly (seed 42, N 40k) -- same rng order, same features.
+    Columns: the 24 features, plus w_S_true (the ridge target) and V_G / V_S.
     """
     rng = np.random.default_rng(seed)
-    w, V_G, V_S, Sigmas = sample_scenarios_wide(rng, n)
-    rho_true = m_batch(V_G, V_S, w)
+    w, V_G, V_S, Sigmas = sample_scenarios(rng, n)
+    rho_true = rho_true_batch(V_G, V_S, w)
     rho_hat = sample_rho_hats(rho_true, Sigmas, rng)
     feats = compute_feature_dict(rho_hat, Sigmas)
 
     df = pd.DataFrame({name: feats[name] for name in FEAT_ALL})
     df["w_S_true"] = w
     df["V_G"], df["V_S"] = V_G, V_S
-    df["split"] = "train"
     return df

@@ -1,8 +1,6 @@
-"""Pair-table construction: filter to usable pairs, then flip & concat.
+"""Pair-table construction: keep usable pairs, attach values, then flip & concat.
 
-Reference: phase1_continuous.py / phase1_binary.py build_pair_table, flip_concat.
-
-Duplicate handling (the input contract flip_concat assumes):
+Input contract, enforced here rather than assumed:
   - cov / pheno must be indexed by *unique* id. A duplicate id would make the
     later `cov.loc[ids]` expand rows and silently misalign covariates with
     phenotypes -> fail loud instead.

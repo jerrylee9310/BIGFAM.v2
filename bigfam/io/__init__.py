@@ -1,12 +1,8 @@
-"""File I/O, kept separate from pure computation."""
+"""File input/output, kept out of the computation modules."""
 from .load import load_pairs, load_artifacts
-from .save import (
-    save_artifacts, save_rho, save_decomposition, save_result,
-    rho_json_dict, decomp_json_dict,
-)
+from .save import save_artifacts, save_rho, save_decomposition
 
 __all__ = [
     "load_pairs", "load_artifacts",
-    "save_artifacts", "save_rho", "save_decomposition", "save_result",
-    "rho_json_dict", "decomp_json_dict",
+    "save_artifacts", "save_rho", "save_decomposition",
 ]

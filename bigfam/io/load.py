@@ -1,12 +1,4 @@
-"""File input: relative pairs / covariates / phenotypes and learned artifacts.
-
-Reads the frozen db/01_processed layout (parquet-only; phenotypes split into
-continuous/ and binary/ subdirs -- see scratch slug bigfam-input-freeze):
-  - kinpairs column DOR (uppercase) -> dor
-  - phenotype value column is named after the trait -> renamed to 'phenotype'
-  - continuous phenotypes are z-scored here (model rho_d assumes standardized y;
-    values are already irnt-frozen, so this z-score is ~identity)
-"""
+"""File input: relative-pair tables and the trained calibration."""
 from __future__ import annotations
 
 import json
@@ -15,46 +7,45 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from ..config import COV_COLS
 from ..types import CalibrationCoef
 
-# default location of the processed GS23471 tables (relative to project root)
-DEFAULT_DB_ROOT = Path("db/01_processed")
+
+def _read_table(stem: Path) -> pd.DataFrame:
+    """Read <stem>.parquet if it exists, else <stem>.csv."""
+    parquet = stem.parent / f"{stem.name}.parquet"
+    if parquet.exists():
+        return pd.read_parquet(parquet)          # needs the 'parquet' extra
+    return pd.read_csv(stem.parent / f"{stem.name}.csv")
 
 
-def load_pairs(name: str, pheno_type: str, dataset: str = "GS23471",
-               base_dir=None, cov_cols=COV_COLS):
-    """Load (pairs, cov, pheno) for a phenotype.
+def load_pairs(data_dir, name: str, pheno_type: str):
+    """Read (pairs, cov, pheno) from a directory laid out as
 
-    pairs: id1, id2, dor.  cov: indexed by id with cov_cols.
-    pheno: indexed by id with a single 'phenotype' column (z-scored if continuous).
+        <data_dir>/kinpairs_dor1_3.csv                 id1, id2, dor
+        <data_dir>/covariates.csv                      id + one column per covariate
+        <data_dir>/phenotypes/<pheno_type>/<name>.csv  id + one value column
+
+    .parquet is read in preference to .csv where present. A runnable example of
+    this layout is examples/toy_data/ (see examples/make_toy_data.py).
+
+    Convenience only -- estimate_rho takes the three DataFrames directly, so any
+    loader that produces them works (see examples/quickstart.py).
     """
-    root = Path(base_dir) if base_dir is not None else (DEFAULT_DB_ROOT / dataset)
+    root = Path(data_dir)
 
-    pairs = pd.read_parquet(root / "kinpairs_dor1_3.parquet")
+    pairs = _read_table(root / "kinpairs_dor1_3")
     pairs = pairs.rename(columns={c: "dor" for c in pairs.columns if c.lower() == "dor"})
 
-    cov = pd.read_parquet(root / "covariates.parquet").set_index("id")
+    cov = _read_table(root / "covariates").set_index("id")
 
-    pheno = pd.read_parquet(root / "phenotypes" / pheno_type / f"{name}.parquet").set_index("id")
-    value_col = [c for c in pheno.columns][0]            # trait-named value column
-    pheno = pheno.rename(columns={value_col: "phenotype"})[["phenotype"]]
-
-    if pheno_type == "continuous":
-        y = pheno["phenotype"].astype(float)
-        std = y.std()
-        pheno["phenotype"] = (y - y.mean()) / (std if std > 0 else 1.0)
+    pheno = _read_table(root / "phenotypes" / pheno_type / name).set_index("id")
+    pheno = pheno.rename(columns={pheno.columns[0]: "phenotype"})[["phenotype"]]
 
     return pairs, cov, pheno
 
 
-def load_artifacts(artifacts_dir):
-    """Load the Phase 2 calibration (artifacts/ws_calibration.json).
-
-    Returns a CalibrationCoef. This used to return a 3-tuple whose second and
-    third slots held a learned reliability gate (ws_gate.pkl / ws_gate_cuts.json);
-    the gate was removed and the slots always came back empty.
-    """
+def load_artifacts(artifacts_dir) -> CalibrationCoef:
+    """Read the trained Phase 2 calibration from <artifacts_dir>/ws_calibration.json."""
     with open(Path(artifacts_dir) / "ws_calibration.json") as f:
         c = json.load(f)
     return CalibrationCoef(

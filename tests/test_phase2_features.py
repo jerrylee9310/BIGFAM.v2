@@ -2,9 +2,7 @@
 import numpy as np
 
 from bigfam.types import RhoEstimate
-from bigfam.phase2.features import (
-    FEAT_ALL, FEAT_BASE, FEAT_NEW, extract_features, compute_feature_dict,
-)
+from bigfam.phase2.features import FEAT_ALL, extract_features, compute_feature_dict
 
 
 def _rho():
@@ -14,10 +12,7 @@ def _rho():
 
 
 def test_feat_contract_lengths():
-    assert len(FEAT_BASE) == 15
-    assert len(FEAT_NEW) == 9
     assert len(FEAT_ALL) == 24
-    assert FEAT_ALL == FEAT_BASE + FEAT_NEW
     assert len(set(FEAT_ALL)) == 24          # no duplicate names
 
 

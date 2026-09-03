@@ -6,9 +6,7 @@ more data than there is and shrinks the SE. The cluster meat corrects it:
     M = M_1 + M_2 - M_12,   Sigma_hat = B^-1 M B^-1
 
 M_1 clusters on id1, M_2 on id2, M_12 on the (id1, id2) pair. Only the score
-definition and the bread B differ between continuous/binary; this is common.
-
-Reference: phase1_continuous.py / phase1_binary.py cluster_meat (verbatim).
+definition and the bread B differ between continuous and binary; this part is shared.
 """
 from __future__ import annotations
 
@@ -19,10 +17,8 @@ import pandas as pd
 def _meat_by_codes(scores: np.ndarray, codes: np.ndarray) -> np.ndarray:
     """sum_c (sum_{n in c} s_n)(.)^T = S^T S, S = per-cluster score sums.
 
-    codes: contiguous group labels 0..G-1. Replaces a per-group Python loop
-    (groupby + np.outer) with one bincount per score column, then a single
-    matmul -- the cluster-meat groupby was the Phase 1 bottleneck after the
-    likelihood was vectorized.
+    codes: contiguous group labels 0..G-1. One bincount per score column plus a
+    single matmul, rather than a Python loop over groups.
     """
     dim = scores.shape[1]
     G = int(codes.max()) + 1 if codes.size else 0

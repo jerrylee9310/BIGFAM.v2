@@ -12,7 +12,9 @@ from bigfam.core.nnls import nnls_2d_batch
 from bigfam.core.design import design_matrix
 from bigfam.phase3.refit import refit_fixed_ws
 
-ARTIFACTS = Path(__file__).resolve().parents[1] / "artifacts"
+ROOT = Path(__file__).resolve().parents[1]
+ARTIFACTS = ROOT / "artifacts"
+TOY_DATA = ROOT / "examples" / "toy_data"
 
 
 def _rho():
@@ -24,7 +26,7 @@ def test_phase3_equals_profile_nnls():
     """Phase 3 refit at w == direct profile NNLS at the same w (same solver)."""
     rho = _rho()
     w = 0.2                                  # away from 0.5; relative ridge negligible
-    beta_refit, _, _, _ = refit_fixed_ws(rho.rho_hat, rho.Sigma_hat, w)
+    beta_refit, _ = refit_fixed_ws(rho.rho_hat, rho.Sigma_hat, w)
 
     X = design_matrix(w)                     # (3, 2)
     Sinv = np.linalg.inv(rho.Sigma_hat)
@@ -51,3 +53,19 @@ def test_full_pipeline_finite():
         assert np.isfinite(v)
     assert dec.V_G >= 0 and dec.V_S >= 0
     assert 0.01 <= dec.wci_lo <= dec.wci_hi <= 0.99
+
+
+@pytest.mark.skipif(not (ARTIFACTS / "ws_calibration.json").exists(),
+                    reason="artifacts not built; run scripts/train_phase2.py")
+def test_toy_data_runs_end_to_end():
+    """The committed example layout loads and the three phases run on it."""
+    import bigfam
+    from bigfam.io import load_pairs, load_artifacts
+
+    pairs, cov, pheno = load_pairs(TOY_DATA, "height", "continuous")
+    rho = bigfam.estimate_rho(pairs, cov, pheno, "continuous", cov_cols=["age", "sex"])
+    dec = bigfam.decompose(rho, bigfam.estimate_ws(rho, load_artifacts(ARTIFACTS)))
+
+    # generated at V_G=0.5, V_S=0.2 -- loose bounds, it is a small sample
+    assert 0.3 < dec.V_G < 0.7
+    assert 0.05 < dec.V_S < 0.35

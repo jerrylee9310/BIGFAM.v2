@@ -1,12 +1,11 @@
-"""Phase-boundary data objects. The type *is* the I/O contract.
+"""The objects that cross a phase boundary -- the I/O contract of each phase.
 
-Phase 1 knows the phenotype kind (continuous/binary); Phase 2 and 3 see only
-(rho_hat, Sigma_hat). These small frozen dataclasses are the spine of the
-design: they are the only things that cross a phase boundary.
+Phase 1 knows whether the phenotype is continuous or binary; Phase 2 and 3 see
+only (rho_hat, Sigma_hat), so they run identically for either kind.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List
 
 import numpy as np
@@ -55,12 +54,10 @@ class Decomposition:
 # ── learned-coefficient containers (artifacts) ───────────────────────────────
 @dataclass(frozen=True)
 class CalibrationCoef:
-    """Phase 2 Step-2 calibration coefficients (artifacts/ws_calibration.json).
+    """Trained Phase 2 coefficients, loaded from artifacts/ws_calibration.json.
 
-    Step 2 is a single ridge regression: w_S_cal = clip(ridge(standardized x)).
-    The w_map confidence-blend (gate a,b + profile_width mean/std) was removed --
-    it was inert in-distribution and a net-harmful instrument out-of-distribution;
-    see research/phase2-drop-wmap/ (SQ1-4) for the measurement.
+    w_S_cal = clip(ridge(standardized x)), x being the 24 features in
+    feature_order. Written by bigfam.phase2.train, read by bigfam.io.load_artifacts.
     """
     feature_order: List[str]     # = FEAT_ALL (single source of truth)
     scaler_mean: np.ndarray      # (24,) StandardScaler mean_

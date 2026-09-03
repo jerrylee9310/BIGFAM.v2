@@ -1,7 +1,4 @@
-"""Continuous phenotype Phase 1: residualize + residual OLS -> (rho_hat, Sigma_hat).
-
-Reference: phase1_continuous.py (estimate_gamma, residualize, estimate_rho, sandwich).
-"""
+"""Continuous phenotype: residualize on covariates, then OLS on the residuals."""
 from __future__ import annotations
 
 import numpy as np
@@ -10,9 +7,10 @@ from .sandwich import cluster_meat, sandwich_cov
 
 
 def estimate_gamma(p, pheno, cov, cov_cols):
-    """Shared gamma from unique-individual OLS (no repeated individuals).
+    """Covariate coefficients from an OLS over *individuals*, not pairs.
 
-    docs/method/phase1.md Stage 1. Dedup individuals before OLS, not pair-level.
+    Fitting on the pair table would weight an individual by how many pairs they
+    appear in, so individuals are deduplicated first.
     """
     import pandas as pd
     unique_ids = pd.unique(pd.concat([p["id1"], p["id2"]], ignore_index=True))
@@ -25,7 +23,7 @@ def estimate_gamma(p, pheno, cov, cov_cols):
 
 
 def residualize(data, gamma_hat, cov_cols):
-    """Y_tilde_k = Y_k - W_k @ gamma_hat. docs/method/phase1.md Stage 1."""
+    """Subtract the covariate fit: Y_tilde_k = Y_k - W_k @ gamma_hat."""
     def W(prefix):
         X = data[[f"{prefix}_{c}" for c in cov_cols]].values
         return np.column_stack([np.ones(len(data)), X])
@@ -38,7 +36,7 @@ def residualize(data, gamma_hat, cov_cols):
 def fit_rho_ols(y_tilde_1, y_tilde_2, g, D=3):
     """Residual OLS: rho_hat = (Z^T Z)^-1 Z^T y_tilde_1, Z = diag(Y~2) A.
 
-    docs/method/phase1.md Stage 2.
+    A is the DOR indicator matrix, so rho_hat has one entry per DOR level.
     """
     N = len(g)
     A = np.zeros((N, D))
@@ -50,9 +48,9 @@ def fit_rho_ols(y_tilde_1, y_tilde_2, g, D=3):
 
 
 def estimate_rho_sigma(data, gamma_hat, cov_cols, D=3):
-    """Full continuous path on a flipped&concat table -> (rho_hat, Sigma_hat).
+    """Full continuous path on a flipped & concatenated pair table.
 
-    docs/method/phase1.md 'Score and Bread' + 'Cluster Sandwich'.
+    -> (rho_hat (D,), Sigma_hat (D, D)).
     """
     y_tilde_1, y_tilde_2 = residualize(data, gamma_hat, cov_cols)
     g = data["dor"].values

@@ -1,4 +1,4 @@
-"""Single source of truth for all constants. Derivations: docs/method/*.md.
+"""Single source of truth for every constant in the package.
 
 D = 3 is fixed: design matrix X(w_S), slope design H, and the contrast
 features D2/D3 are all hard-coded for three DOR levels. Generalising to D != 3
@@ -12,7 +12,6 @@ import numpy as np
 # ── model structure (fixed) ──────────────────────────────────────────────────
 D = 3                                   # number of DOR levels (fixed)
 W_G = 0.5                               # genetic decay per DOR step (biology, fixed)
-COV_COLS = ["age", "sex", "age_x_sex", "age2_x_sex"]   # GS23471 default; override via cov_cols=
 
 # slope GLS design (Phase 2 1a): rows = DOR 1,2,3
 H = np.column_stack([np.ones(3), [-1.0, -2.0, -3.0]])  # (3, 2), cols [1, -d]
@@ -20,9 +19,8 @@ H = np.column_stack([np.ones(3), [-1.0, -2.0, -3.0]])  # (3, 2), cols [1, -d]
 # ── grid / statistical constants ─────────────────────────────────────────────
 _WS_FULL = np.linspace(0.01, 0.99, 99)
 WS_PROFILE = _WS_FULL[np.abs(_WS_FULL - 0.5) > 1e-9]   # drop 0.5 (singular)
-CHI2_95 = 3.84                          # chi^2_{1,0.95}, profile_width CI span
+CHI2_95 = 3.84                          # chi^2_{1,0.95}, profile CI cut
 Z95 = 1.96
-Z_TIER = 1.645                          # one-sided 95% z-cut (z_VG·z_VS 보고용)
 CLIP = (0.01, 0.99)                     # w_S clip
 RHO_CLIP = (-0.9999, 0.9999)            # bivariate probit rho bound
 

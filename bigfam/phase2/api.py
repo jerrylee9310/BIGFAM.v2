@@ -1,10 +1,7 @@
-"""Phase 2 unified entry point.
+"""Phase 2: (rho_hat, Sigma_hat) -> w_S, the shared-environment decay rate.
 
-    (rho_hat, Sigma_hat) -> w_s_cal
-
-The reliability GBR / gate / sigma_w are gone: the reporting tier (Phase 3) does
-not use them (see scratch v2-fieller-refactor step5). w_S uncertainty is carried
-by the profile w-CI in Phase 3, not a per-point sigma_w.
+24 summary features of the Phase 1 estimate, fed to a ridge model whose
+coefficients were fit offline by simulation (see train.py).
 """
 from __future__ import annotations
 
@@ -14,6 +11,9 @@ from .calibrate import calibrate_ws
 
 
 def estimate_ws(rho: RhoEstimate, calib: CalibrationCoef) -> WsEstimate:
-    """Calibrate the environmental decay rate w_S."""
-    x = extract_features(rho)                    # (24,) FEAT_ALL order
-    return WsEstimate(w_s_cal=calibrate_ws(x, calib))
+    """Estimate w_S. calib comes from bigfam.io.load_artifacts().
+
+    A point estimate only; the uncertainty in w_S is reported by Phase 3 as the
+    profile CI, not as a per-estimate standard error.
+    """
+    return WsEstimate(w_s_cal=calibrate_ws(extract_features(rho), calib))

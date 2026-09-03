@@ -1,14 +1,13 @@
-"""Phase 1 continuous estimator: residual-OLS recovery + the Z broadcast fix.
+"""Phase 1 continuous estimator.
 
-fit_rho_ols used to build Z as np.diag(y_tilde_2) @ A, an (N, N) dense matrix
-(7.2 GB at N=30k, OOM for real data). It is now the equivalent broadcast
-y_tilde_2[:, None] * A. These tests lock both the equivalence and that the
-estimator still recovers rho.
+  - fit_rho_ols builds Z by broadcasting (y_tilde_2[:, None] * A) rather than
+    materialising diag(y_tilde_2) @ A, which would be (N, N); the two must agree
+  - the estimator recovers a known rho from simulated pairs
 """
 import numpy as np
 import pandas as pd
 
-from bigfam.config import COV_COLS
+COV_COLS = ["age", "sex", "age_x_sex", "age2_x_sex"]   # fixture covariates
 from bigfam.phase1.continuous import fit_rho_ols, estimate_rho_sigma
 
 

@@ -1,15 +1,7 @@
-"""Safe linear-algebra helpers for the (near-singular at w_S=0.5) GLS solves."""
+"""Linear-algebra repair for the covariance matrices the GLS solves need."""
 from __future__ import annotations
 
 import numpy as np
-
-
-def safe_inv(M: np.ndarray) -> np.ndarray:
-    """Inverse that tolerates near-singular matrices via pinv fallback."""
-    try:
-        return np.linalg.inv(M)
-    except np.linalg.LinAlgError:
-        return np.linalg.pinv(M)
 
 
 def nearest_psd(M: np.ndarray, rtol: float = 1e-8) -> np.ndarray:

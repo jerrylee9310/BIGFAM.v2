@@ -1,7 +1,9 @@
 """End-to-end demo on synthetic data — no real phenotype data required.
 
-Generates relative pairs at DOR 1/2/3 from a known (V_G, V_S, w_S), then runs
-the full Phase 1 -> 2 -> 3 pipeline and compares the estimate to the truth.
+Generates relative pairs at dor 1/2/3 from a known (V_G, V_S, w_S), runs the
+full Phase 1 -> 2 -> 3 pipeline, and compares the estimates to the truth. The
+three DataFrames built in make_synthetic_pairs() are exactly the input shape
+bigfam.estimate_rho expects, so copy that part for your own data.
 
     python examples/quickstart.py
 """
@@ -22,9 +24,12 @@ def make_synthetic_pairs(v_g=V_G_TRUE, v_s=V_S_TRUE, w_s=W_S_TRUE,
                           n_per_dor=N_PER_DOR, seed=SEED):
     """Synthetic continuous-trait relative pairs (no covariates).
 
-    rho_d = 0.5^d * V_G + w_S^(d-1) * V_S  (docs/README.md), sampled as a
-    bivariate normal per DOR level. Returns (pairs, cov, pheno) ready for
-    bigfam.estimate_rho.
+    Each pair is a draw from a bivariate normal whose correlation is the model's
+    rho_d = 0.5^d * V_G + w_S^(d-1) * V_S. Every individual appears in exactly
+    one pair here; real data reuses individuals, which is what the cluster
+    sandwich in Phase 1 corrects for.
+
+    Returns (pairs, cov, pheno) ready for bigfam.estimate_rho.
     """
     rng = np.random.default_rng(seed)
     id1_all, id2_all, dor_all, y1_all, y2_all = [], [], [], [], []
@@ -63,8 +68,9 @@ def main():
     print(f"rho_hat = {rho.rho_hat}")
     print(f"w_S:  true={W_S_TRUE:.3f}  est={result.w_s_cal:.3f}  "
           f"CI=[{result.wci_lo:.3f}, {result.wci_hi:.3f}]")
-    print(f"V_G:  true={V_G_TRUE:.3f}  est={result.V_G:.3f}")
-    print(f"V_S:  true={V_S_TRUE:.3f}  est={result.V_S:.3f}")
+    print(f"V_G:  true={V_G_TRUE:.3f}  est={result.V_G:.3f}  se={result.se_VG_cond:.3f}")
+    print(f"V_S:  true={V_S_TRUE:.3f}  est={result.V_S:.3f}  se={result.se_VS_cond:.3f}")
+    print("(se is conditional on w_S)")
 
 
 if __name__ == "__main__":

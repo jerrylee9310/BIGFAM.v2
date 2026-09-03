@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from bigfam.config import COV_COLS
+COV_COLS = ["age", "sex", "age_x_sex", "age2_x_sex"]   # fixture covariates
 from bigfam.phase1.pairs import build_pair_table
 
 IDS = [1, 2, 3, 4, 5]

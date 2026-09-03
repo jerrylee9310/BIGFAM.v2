@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from bigfam.config import COV_COLS
+COV_COLS = ["age", "sex", "age_x_sex", "age2_x_sex"]   # fixture covariates
 from bigfam.core.linalg import nearest_psd
 from bigfam.phase1 import api as _api
 
@@ -34,11 +34,13 @@ def test_nearest_psd_leaves_pd_unchanged():
 
 # ── estimate_rho boundary ──────────────────────────────────────────────────────
 def _mini_binary():
-    ids = [1, 2, 3]
-    cov = pd.DataFrame({c: np.arange(3, dtype=float) for c in COV_COLS},
+    """Smallest table that covers all three dor levels (estimate_rho requires it)."""
+    ids = [1, 2, 3, 4]
+    cov = pd.DataFrame({c: np.arange(4, dtype=float) for c in COV_COLS},
                        index=pd.Index(ids, name="id"))
-    pheno = pd.DataFrame({"phenotype": [0, 1, 1]}, index=pd.Index(ids, name="id"))
-    pairs = pd.DataFrame({"id1": [1, 1, 2], "id2": [2, 3, 3], "dor": [1, 2, 1]})
+    pheno = pd.DataFrame({"phenotype": [0, 1, 1, 0]}, index=pd.Index(ids, name="id"))
+    pairs = pd.DataFrame({"id1": [1, 1, 2, 1], "id2": [2, 3, 3, 4],
+                          "dor": [1, 2, 1, 3]})
     return pairs, cov, pheno
 
 
@@ -50,7 +52,7 @@ def test_estimate_rho_projects_indefinite_sigma(monkeypatch):
 
     pairs, cov, pheno = _mini_binary()
     with pytest.warns(UserWarning, match="not PSD"):
-        est = _api.estimate_rho(pairs, cov, pheno, "binary")
+        est = _api.estimate_rho(pairs, cov, pheno, "binary", COV_COLS)
     assert np.linalg.eigvalsh(est.Sigma_hat).min() > 0
     assert np.all(np.isfinite(est.sigma_hat))
 
@@ -64,5 +66,5 @@ def test_estimate_rho_keeps_pd_sigma(monkeypatch):
     pairs, cov, pheno = _mini_binary()
     with warnings.catch_warnings():
         warnings.simplefilter("error")        # no PSD warning expected
-        est = _api.estimate_rho(pairs, cov, pheno, "binary")
+        est = _api.estimate_rho(pairs, cov, pheno, "binary", COV_COLS)
     np.testing.assert_allclose(est.Sigma_hat, pd_sigma)

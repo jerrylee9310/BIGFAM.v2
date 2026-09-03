@@ -1,9 +1,8 @@
-"""Binary phenotype Phase 1: joint bivariate probit MLE -> (rho_hat, Sigma_hat).
+"""Binary phenotype: joint bivariate probit MLE -> (rho_hat, Sigma_hat).
 
-theta = (gamma [1+p], rho [D]). Analytical row score, numerical Hessian bread,
-cluster sandwich, then extract the rho block of the covariance.
-
-Reference: phase1_binary.py (log_lik_rows, row_scores, numerical_hessian).
+theta = (gamma [1+p covariate coefficients], rho [D]). Fit by L-BFGS-B with an
+analytical gradient, then a cluster sandwich covariance whose rho block is
+Sigma_hat.
 """
 from __future__ import annotations
 
@@ -38,8 +37,8 @@ def bvn_cdf(a, b, r):
                      + 1/(2pi) integral_0^r exp(-(a^2-2t a b+b^2)/(2(1-t^2)))
                        / sqrt(1-t^2) dt
     with Gauss-Legendre quadrature on [0, r]. Matches scipy's mvn CDF to ~2e-10
-    over |r| <= 0.95 (see config.BVN_GL_NODES) but stays fully vectorized: the
-    reference scalarized over rows via apply_along_axis and dominated runtime.
+    over |r| <= 0.95 (config.BVN_GL_NODES) and, unlike scipy's, is vectorized
+    over rows -- the likelihood is evaluated on every pair at every iteration.
     """
     a = np.asarray(a, float); b = np.asarray(b, float); r = np.asarray(r, float)
     base = norm.cdf(a) * norm.cdf(b)
@@ -88,9 +87,11 @@ def neg_log_lik(theta, W1, W2, y1, y2, g, D=3):
 
 
 def neg_log_lik_grad(theta, W1, W2, y1, y2, g, D=3):
-    """Analytical gradient of neg_log_lik = -sum row_scores. Passed as jac to
-    the optimizer so L-BFGS-B skips its finite-difference gradient (~8x fewer
-    likelihood evaluations for p1 + D parameters)."""
+    """Analytical gradient of neg_log_lik = -sum row_scores.
+
+    Passed to the optimizer as jac, so it skips finite differences (~8x fewer
+    likelihood evaluations).
+    """
     p1 = W1.shape[1]
     return -row_scores(W1, W2, y1, y2, g, theta[:p1], theta[p1:], D).sum(axis=0)
 

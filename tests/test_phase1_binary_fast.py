@@ -1,9 +1,8 @@
-"""Phase 1 binary fast-path correctness.
+"""Phase 1 binary internals, each checked against a slower reference:
 
-The speedups must not change the math:
-  - bvn_cdf (vectorized Gauss-Legendre) matches scipy's mvn CDF
-  - neg_log_lik_grad (analytical jac) matches the finite-difference gradient
-  - cluster_meat (factorize + bincount) matches the naive groupby loop
+  - bvn_cdf (vectorized Gauss-Legendre) vs scipy's mvn CDF
+  - neg_log_lik_grad (analytical) vs a finite-difference gradient
+  - cluster_meat (factorize + bincount) vs a naive groupby loop
 """
 import numpy as np
 import pandas as pd
