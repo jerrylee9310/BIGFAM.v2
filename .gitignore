@@ -8,3 +8,20 @@ build/
 .eggs/
 .DS_Store
 outputs/
+supple_data
+
+# external tool not redistributable under its license -- see
+# analysis/fig2_figS3_cross_method/README.md for where to get it
+analysis/fig2_figS3_cross_method/bin/
+
+# scratch/intermediate files from analysis/*/ scripts (the reference outputs
+# each script needs -- results/raw.parquet etc. -- ARE checked in on purpose,
+# so the figures work right after a clone without a multi-hour re-run)
+analysis/*/results/_*
+analysis/*/*/results/_*
+analysis/*/results/*_small.*
+
+# figS1's raw simulation output is 19MB but pure-Python and ~5-6min to
+# regenerate (no external tool needed, unlike raw.parquet's LDAK/R deps) --
+# not worth the repo bloat. png/pdf previews stay checked in.
+analysis/figS1_phase2_calibration/figS1.csv

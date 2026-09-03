@@ -82,6 +82,7 @@ print(result.w_s_cal, (result.wci_lo, result.wci_hi))
 | `bigfam/` | the package — `phase1/`, `phase2/`, `phase3/`, plus shared `core/` and `io/` |
 | `bigfam/artifacts/ws_calibration.json` | trained Phase 2 coefficients, the only file inference reads; rebuild with `scripts/train_phase2.py` |
 | `examples/` | `quickstart.py`, the toy dataset and its generator |
+| `analysis/` | one folder per paper figure, each self-contained — see [analysis/README.md](analysis/README.md) |
 | `scripts/` | `run_pipeline.py` (estimate), `train_phase2.py` (retrain) |
 | `tests/` | `pip install -e ".[dev]"`, then `pytest tests/` |
 
@@ -100,8 +101,8 @@ Derivations are in the papers below, not in this repository.
 - Lee, J.J., Han, B. BIGFAM — variance components analysis from relatives
   without genotype. *Nature Communications* **16**, 5476 (2025).
   https://doi.org/10.1038/s41467-025-60502-0
-- Estimating common-environmental decay reveals instability in family-based
-  heritability estimates. Under review.
+- Lee, J.J., Han, B. BIGFAM — Estimating common-environmental decay reveals instability in family-based
+  heritability estimates. *Under review*.
 
 ## License
 

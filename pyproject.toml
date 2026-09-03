@@ -33,6 +33,7 @@ Repository = "https://github.com/jerrylee9310/BIGFAM.v2"
 [project.optional-dependencies]
 dev = ["pytest"]
 parquet = ["pyarrow"]   # optional: load_pairs prefers .parquet over .csv when present
+analysis = ["pyarrow", "matplotlib", "seaborn"]   # analysis/ figure replication scripts
 
 [tool.hatch.build.targets.wheel]
 packages = ["bigfam"]
