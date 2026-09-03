@@ -17,7 +17,7 @@ The full panel (all three w_C, including the degenerate point) is
 plot_figS3.py. This underestimation bias is decomposed in the paper's figS2.
 
 Input: results/raw.parquet (column names are the pipeline's own: w_s, V_G_hat).
-Output: fig2.png + fig2.pdf.
+Output: fig2.png.
 """
 from __future__ import annotations
 from pathlib import Path

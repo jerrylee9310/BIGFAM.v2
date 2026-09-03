@@ -110,5 +110,5 @@ LDAK, no `db/`, no other `analysis/*` folder.
     would replicate with the real `(V_A, V_C)` pool. Read the NULL panel
     here as noisier than the manuscript's, not as evidence the manuscript's
     NULL result doesn't hold.
-- `figS7.png` / `figS7.pdf` in this folder are the actual output of the full
+- `figS7.png` in this folder is the actual output of the full
   6,000-trait run above — open them to see the shape directly.

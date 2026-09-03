@@ -30,7 +30,7 @@ data of any kind is involved.
   features, and calls the *shipped* ridge calibration
   (`bigfam/artifacts/ws_calibration.json`, loaded via
   `bigfam.io.load.load_artifacts()`) to get `w_hat_C`. Writes `figS1.csv`.
-- `plot.py` — reads `figS1.csv`, produces `figS1.png` + `figS1.pdf`.
+- `plot.py` — reads `figS1.csv`, produces `figS1.png`.
 - `_style.py` — shared plotting style (fonts, colors, NG-journal figure sizing).
   Local copy, not imported from elsewhere — this folder is self-contained.
 
@@ -40,7 +40,7 @@ data of any kind is involved.
 cd BIGFAM.v2-publish
 python3 -m venv .venv && .venv/bin/pip install -e ".[analysis]"
 .venv/bin/python analysis/figS1_phase2_calibration/generate.py   # ~5-6 min, writes figS1.csv (200k rows)
-.venv/bin/python analysis/figS1_phase2_calibration/plot.py       # seconds, writes figS1.png/pdf
+.venv/bin/python analysis/figS1_phase2_calibration/plot.py       # seconds, writes figS1.png
 ```
 
 ## External dependencies

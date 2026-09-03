@@ -2,7 +2,7 @@
 
 Widths W1/W15/W2 = 89/120/183 mm, and figsize is the final printed size.
 Color encodes the model class; BIGFAM is the only saturated hue.
-save(fig, "figN") writes figN.png (400 dpi) and figN.pdf (vector).
+save(fig, "figN") writes figN.png at 400 dpi.
 
 Local copy -- every analysis/ folder is self-contained.
 """
@@ -83,7 +83,7 @@ def line_labels(ax, ends, name, color, x0, x1, xtext, gap,
 
 
 def save(fig, stem, tight=True):
-    """Write <stem>.png and <stem>.pdf next to this file.
+    """Write <stem>.png next to this file.
 
     tight=False keeps the canvas at exactly figsize -- use it when the layout is
     set by gridspec margins, since a tight bbox would crop them and change the
@@ -95,5 +95,4 @@ def save(fig, stem, tight=True):
     ctx = {} if tight else {"savefig.bbox": None}
     with mpl.rc_context(ctx):
         fig.savefig(here / f"{stem}.png")
-        fig.savefig(here / f"{stem}.pdf")
-    print(f"wrote {stem}.png + {stem}.pdf")
+    print(f"wrote {stem}.png")

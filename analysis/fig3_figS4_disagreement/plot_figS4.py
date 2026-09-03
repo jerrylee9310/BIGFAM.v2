@@ -3,7 +3,7 @@
     .venv/bin/python analysis/fig3_figS4_disagreement/plot_figS4.py
 
 Input:  supple_data/Supplementary_Data_1_trait_estimates.csv (via plot_fig3)
-Output: figS4.png + figS4.pdf
+Output: figS4.png
 
 Rows = trait set (all 416, UK Biobank 340, Generation Scotland 76), columns =
 predictor (separability, V_C, V_A). Each panel plots rank residuals after

@@ -1,4 +1,4 @@
-"""Shared figure style: Nature Genetics sizing, PNG + PDF output.
+"""Shared figure style: Nature Genetics sizing, PNG output.
 
 Trimmed to what figS7 uses (`C`, `rc`, `panel_label`, `save`).
 Local copy -- every analysis/ folder is self-contained.
@@ -61,5 +61,4 @@ def save(fig, stem, tight=True):
     ctx = {} if tight else {"savefig.bbox": None}
     with mpl.rc_context(ctx):
         fig.savefig(here / f"{stem}.png")
-        fig.savefig(here / f"{stem}.pdf")
-    print(f"wrote {stem}.png + {stem}.pdf")
+    print(f"wrote {stem}.png")

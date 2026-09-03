@@ -3,7 +3,7 @@
     .venv/bin/python analysis/fig4_figS5_figS6_snp_h2/plot_figS5.py
 
 Input:  supple_data/Supplementary_Data_1_trait_estimates.csv
-Output: figS5.png + figS5.pdf
+Output: figS5.png
 
 Shows that Fig. 4a's pooled result is not an artefact of mixing trait types:
 the same ordering holds for continuous and binary traits separately. All eight

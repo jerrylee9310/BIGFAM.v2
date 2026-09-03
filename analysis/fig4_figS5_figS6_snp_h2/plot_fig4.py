@@ -3,7 +3,7 @@
     .venv/bin/python analysis/fig4_figS5_figS6_snp_h2/plot_fig4.py
 
 Input:  method_corr.csv (compute.py) and Supplementary Data 1
-Output: fig4.png + fig4.pdf
+Output: fig4.png
 
 Three panels sharing the separability threshold |w_C - 0.5| >= t, eight methods
 colored by model class:

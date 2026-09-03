@@ -18,7 +18,7 @@ lower bound, SNP-h2), here the x-axis is the truth itself, so unbiased means
 (alpha=0, beta=1), not beta>1. n<50 thresholds are dropped from a row.
 
 Input:  results/circular_pairlevel_scen[_small].parquet  (generate.py)
-Output: figS7.png + figS7.pdf
+Output: figS7.png
 """
 from __future__ import annotations
 import argparse

@@ -14,7 +14,7 @@ upward. BIGFAM.v1 doesn't support binary -> NA. Colors = model class (same
 legend as Fig. 2), BIGFAM markers are larger.
 
 Input: results/raw.parquet (column names are the pipeline's own: w_s, V_G_hat).
-Output: figS3.png + figS3.pdf. Style from _style.py.
+Output: figS3.png. Style from _style.py.
 """
 from __future__ import annotations
 from pathlib import Path

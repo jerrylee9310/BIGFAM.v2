@@ -3,7 +3,7 @@
     .venv/bin/python analysis/fig3_figS4_disagreement/plot_fig3.py
 
 Input:  supple_data/Supplementary_Data_1_trait_estimates.csv (416 traits)
-Output: fig3.png + fig3.pdf
+Output: fig3.png
 
 a  SD across the six fixed-decay h2 estimates, in units of the mean SE, split
    into a between-assumption and a within-assumption (estimation framework)

@@ -17,7 +17,7 @@
   Column names (w_S_true / V_S / w_hat) match generate.py's CSV schema; only the
   rendered axis labels are unified to w_C/V_C.
 
-Input: figS1.csv (generate.py). Output: figS1.png + figS1.pdf.
+Input: figS1.csv (generate.py). Output: figS1.png.
 """
 from __future__ import annotations
 from pathlib import Path

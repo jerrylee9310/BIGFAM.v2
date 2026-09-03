@@ -3,7 +3,7 @@
     .venv/bin/python analysis/fig4_figS5_figS6_snp_h2/plot_figS6.py
 
 Input:  supple_data/Supplementary_Data_1_trait_estimates.csv
-Output: figS6.png + figS6.pdf
+Output: figS6.png
 
 One panel per method, each holding two regression lines: the low-separability
 subset (dist < 0.20, grey dashed) and the high one (dist >= 0.20, solid, class

@@ -11,7 +11,7 @@ truth -- knowing the decay rate does not save this scenario.
 Panels: (a) slow w_C=0.8, (b) degenerate w_C=0.5, (c) fast w_C=0.2.
 Point=mean, thick bar=IQR(50%), thin line=95%, as in Fig. 2/S3.
 
-Input: figS2.parquet (generate.py writes it). Output: figS2.png + figS2.pdf.
+Input: figS2.parquet (generate.py writes it). Output: figS2.png.
 """
 from __future__ import annotations
 from pathlib import Path

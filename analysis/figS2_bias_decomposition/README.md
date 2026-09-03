@@ -27,7 +27,7 @@ This is paper **Figure S2**.
 - `generate.py` — simulates the pairs, runs Phase 1 -> 2 -> 3 for all three
   variants, writes `figS2.parquet` (9,000 rows: 1,000 reps x 3 $w_C$ x 3
   variants).
-- `plot.py` — reads `figS2.parquet`, writes `figS2.png` + `figS2.pdf`.
+- `plot.py` — reads `figS2.parquet`, writes `figS2.png`.
 - `_style.py` — shared Nature Genetics-style matplotlib settings (fonts,
   colors, panel labels). Copied as-is from the paper's figure style module;
   falls back to DejaVu Sans if Arial isn't installed.
