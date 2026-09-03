@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bigfam"
+version = "0.1.0"
+description = "BIGFAM: relative-pair genetic/shared-environment variance decomposition (Phase 1->2->3)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "scikit-learn",
+    "joblib",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+parquet = ["pyarrow"]   # only needed for bigfam.io.load_pairs (parquet-backed loader)
+
+[tool.hatch.build.targets.wheel]
+packages = ["bigfam"]
