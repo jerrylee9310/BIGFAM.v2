@@ -25,6 +25,7 @@ Phase 3   rho_hat, Sigma_hat, w_S   ->  V_G, V_S, conditional SE, w_S CI
 - [Use it in Python](#use-it-in-python)
 - [Repository map](#repository-map)
 - [Documentation](#documentation)
+- [References](#references)
 - [License](#license)
 
 ## Install
@@ -92,7 +93,15 @@ print(result.w_s_cal, (result.wci_lo, result.wci_hi))
 | [docs/02-results.md](docs/02-results.md) | What the output means |
 | [docs/03-api.md](docs/03-api.md) | Reference and recipes |
 
-Derivations are in the paper, not in this repository.
+Derivations are in the papers below, not in this repository.
+
+## References
+
+- Lee, J.J., Han, B. BIGFAM — variance components analysis from relatives
+  without genotype. *Nature Communications* **16**, 5476 (2025).
+  https://doi.org/10.1038/s41467-025-60502-0
+- Estimating common-environmental decay reveals instability in family-based
+  heritability estimates. Under review.
 
 ## License
 
