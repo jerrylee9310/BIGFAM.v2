@@ -28,8 +28,8 @@ rc()
 # (key, label); "all" is every trait, the others are dataset values
 SETS = [("all", "All traits"), ("UKB41907", "UK Biobank"),
         ("GS23471", "Generation Scotland")]
-SHORT = {"ident": "separability", "V_S": fig3.COV_LAB["V_S"], "V_G": fig3.COV_LAB["V_G"]}
-COL = {"ident": C["decay"], "V_S": INK, "V_G": FAINT}   # same predictor colors as fig3 b
+SHORT = {"ident": "separability", "V_C": fig3.COV_LAB["V_C"], "V_A": fig3.COV_LAB["V_A"]}
+COL = {"ident": C["decay"], "V_C": INK, "V_A": FAINT}   # same predictor colors as fig3 b
 
 
 def stats_for(sub, rng):

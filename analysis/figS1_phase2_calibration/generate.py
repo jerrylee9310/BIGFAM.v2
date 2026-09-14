@@ -6,11 +6,11 @@ estimate w_hat_C. plot.py reads the CSV this writes.
 
 Prior (identical to S2.4):
     w_C        ~ U(0.01, 0.99)
-    (V_G, V_S) ~ Dirichlet(1, 1, 1)           # V_E is the remainder
+    (V_A, V_C) ~ Dirichlet(1, 1, 1)           # V_E is the remainder
     sigma_d    ~ U(0.001, 0.10), unordered
     Sigma corr : 3 free positive off-diagonals ~U(0, 0.9), rejected to PSD
 
-For each draw: rho_d = 0.5^d V_G + w_C^{d-1} V_S, one noisy rho_hat ~ N(rho, Sigma),
+For each draw: rho_d = 0.5^d V_A + w_C^{d-1} V_C, one noisy rho_hat ~ N(rho, Sigma),
 then features -> shipped ridge -> w_hat_C. Seed 123 = the calibration eval seed; at
 N=40k this reproduces the validated eval draw byte-identically. N is enlarged here
 so the Figure S1B retention heatmap fills its sparse high-signal / low-noise corner.
@@ -30,7 +30,7 @@ from bigfam.io.load import load_artifacts
 
 
 def calibrate_predict(df, calib):
-    """Vectorised calibrated w_C over a DataFrame (matches bigfam.phase2.calibrate.calibrate_ws
+    """Vectorised calibrated w_C over a DataFrame (matches bigfam.phase2.calibrate.calibrate_wc
     row-wise; that function is single-row only, so this batches the same formula)."""
     lo, hi = calib.clip
     x_std = (df[FEAT_ALL].values - calib.scaler_mean) / calib.scaler_scale
@@ -64,27 +64,27 @@ def _free_corr(rng, N):
 
 
 def sample_scenarios(rng, N):
-    """S2.4 prior draw. Returns w_C, V_G, V_S, Sigmas (same RNG order as calibration)."""
+    """S2.4 prior draw. Returns w_C, V_A, V_C, Sigmas (same RNG order as calibration)."""
     w = rng.uniform(*DOMAIN, N)
 
-    u = rng.uniform(0.0, 1.0, N)                    # Dirichlet(1,1,1) on (V_G, V_S)
+    u = rng.uniform(0.0, 1.0, N)                    # Dirichlet(1,1,1) on (V_A, V_C)
     v = rng.uniform(0.0, 1.0, N)
     m = (u + v) > 1.0
     u[m], v[m] = 1.0 - u[m], 1.0 - v[m]
-    V_G, V_S = u, v
+    V_A, V_C = u, v
 
     R = _free_corr(rng, N)
     sd = rng.uniform(0.001, SIGMA_HI, (N, 3))       # unordered
     Sigmas = R * sd[:, :, None] * sd[:, None, :]
-    return w, V_G, V_S, Sigmas
+    return w, V_A, V_C, Sigmas
 
 
 def main():
     rng = np.random.default_rng(SEED)
-    w, V_G, V_S, Sigmas = sample_scenarios(rng, N)
+    w, V_A, V_C, Sigmas = sample_scenarios(rng, N)
 
     d = np.arange(1, 4)
-    rho_true = 0.5 ** d[None, :] * V_G[:, None] + w[:, None] ** (d - 1)[None, :] * V_S[:, None]
+    rho_true = 0.5 ** d[None, :] * V_A[:, None] + w[:, None] ** (d - 1)[None, :] * V_C[:, None]
     rho_hat = sample_rho_hats(rho_true, Sigmas, rng)
 
     feats = compute_feature_dict(rho_hat, Sigmas)
@@ -95,9 +95,9 @@ def main():
 
     sd = np.sqrt(np.stack([Sigmas[:, k, k] for k in range(3)], axis=1))
     out = pd.DataFrame({
-        "w_S_true": w,
-        "V_G": V_G,
-        "V_S": V_S,
+        "w_C_true": w,
+        "V_A": V_A,
+        "V_C": V_C,
         "sigma_max": sd.max(axis=1),               # raw correlation measurement sd (noise)
         "w_hat": w_hat,                            # w_hat_C, shipped ridge point estimate
     })

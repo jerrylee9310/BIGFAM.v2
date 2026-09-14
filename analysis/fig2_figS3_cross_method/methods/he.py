@@ -3,11 +3,11 @@
 Continuous only (HE-SD, Haseman & Elston 1972); imposes the AE model outright:
     E[(y1-y2)^2] = 2*sigma_P^2 - 2*w_G^d*sigma_A^2  -> fix the intercept at the
     AE value 2*sigma_P^2, origin-OLS on the rest.
-    V_G = -slope / (2 * sigma_P^2)
+    V_A = -slope / (2 * sigma_P^2)
 Leaving the intercept free would let a DOR-constant shared-environment term
-(-2*sigma_P^2*w_S(d)*V_S with w_S(d) === const) get absorbed into it, giving the
-same V_G as ACE-const (not AE). Fixing the intercept instead pushes all of the
-shared-environment signal into the slope, so V_G absorbs it -- the same
+(-2*sigma_P^2*w_C(d)*V_C with w_C(d) === const) get absorbed into it, giving the
+same V_A as ACE-const (not AE). Fixing the intercept instead pushes all of the
+shared-environment signal into the slope, so V_A absorbs it -- the same
 AE-class bias as Falconer/PCGC (origin regression).
 Binary can't observe liability (y1-y2)^2, so PCGC replaces HE there
 (-> methods/pcgc.py).
@@ -32,4 +32,4 @@ def estimate(rho, pairs, pheno, scale="continuous"):
     # fix the intercept at the AE value 2*sigma_P^2 -> origin regression of
     # (d2 - 2*sigma_P^2) on w_G^d
     slope = float(((d2 - 2.0 * sigma2) * x).sum() / (x * x).sum())
-    return {"V_G": -slope / (2.0 * sigma2)}
+    return {"V_A": -slope / (2.0 * sigma2)}

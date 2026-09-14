@@ -12,7 +12,7 @@ from ..types import CalibrationCoef, RhoEstimate, Decomposition
 
 
 def save_artifacts(calib: CalibrationCoef, out_dir) -> None:
-    """Write ws_calibration.json -- the only file inference needs."""
+    """Write wc_calibration.json -- the only file inference needs."""
     d = asdict(calib)
     for k in ("scaler_mean", "scaler_scale", "ridge_coef"):
         d[k] = [float(v) for v in np.asarray(d[k]).ravel()]
@@ -20,7 +20,7 @@ def save_artifacts(calib: CalibrationCoef, out_dir) -> None:
 
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    with open(out / "ws_calibration.json", "w") as f:
+    with open(out / "wc_calibration.json", "w") as f:
         json.dump(d, f, indent=2)
 
 
@@ -36,11 +36,11 @@ def save_rho(rho: RhoEstimate, out_dir) -> None:
 
 
 def save_decomposition(result: Decomposition, out_dir) -> None:
-    """Write decomposition.tsv: V_G/V_S (estimate, conditional SE, z) and w_S with its CI."""
+    """Write decomposition.tsv: V_A/V_C (estimate, conditional SE, z) and w_C with its CI."""
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     pd.DataFrame([{
-        "V_G": result.V_G, "se_VG_cond": result.se_VG_cond, "z_VG": result.z_VG,
-        "V_S": result.V_S, "se_VS_cond": result.se_VS_cond, "z_VS": result.z_VS,
-        "w_s_cal": result.w_s_cal, "wci_lo": result.wci_lo, "wci_hi": result.wci_hi,
+        "V_A": result.V_A, "se_VA_cond": result.se_VA_cond, "z_VA": result.z_VA,
+        "V_C": result.V_C, "se_VC_cond": result.se_VC_cond, "z_VC": result.z_VC,
+        "w_c_cal": result.w_c_cal, "wci_lo": result.wci_lo, "wci_hi": result.wci_hi,
     }]).to_csv(out / "decomposition.tsv", sep="\t", index=False)

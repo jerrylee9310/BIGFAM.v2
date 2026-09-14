@@ -58,7 +58,7 @@ def main():
     # SNP-h2 benchmark: Neale's estimates are UK Biobank only, so this narrows
     # the 416 traits to the 340 UKB ones
     d = d[d.snp_h2.notna()].reset_index(drop=True)
-    d["dist"] = (d.w_s_cal - 0.5).abs()
+    d["dist"] = (d.w_c_cal - 0.5).abs()
     lo_d, hi_d = d[d.dist < GATE], d[d.dist >= GATE]
     xlo, xhi = float(d.snp_h2.quantile(QLO)), float(d.snp_h2.quantile(QHI))
 

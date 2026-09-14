@@ -22,7 +22,7 @@ def main():
     print(f"training Phase 2 calibration ({N_SIM:,} simulated draws, seed {SEED}) ...")
     calib = train_all(args.out)
     print(f"  ridge_alpha={calib.ridge_alpha}  intercept={calib.ridge_intercept:.4f}")
-    print(f"wrote ws_calibration.json to {args.out}")
+    print(f"wrote wc_calibration.json to {args.out}")
 
 
 if __name__ == "__main__":

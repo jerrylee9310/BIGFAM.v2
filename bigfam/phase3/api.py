@@ -1,37 +1,37 @@
-"""Phase 3: (rho_hat, Sigma_hat, w_S) -> (V_G, V_S, conditional SE, w-CI).
+"""Phase 3: (rho_hat, Sigma_hat, w_C) -> (V_A, V_C, conditional SE, w-CI).
 
-Conditional decomposition at the fixed w_S from Phase 2 (refit.py) plus the
-profile-likelihood CI for w_S itself (robust.py).
+Conditional decomposition at the fixed w_C from Phase 2 (refit.py) plus the
+profile-likelihood CI for w_C itself (robust.py).
 """
 from __future__ import annotations
 
 import numpy as np
 
 from ..config import CLIP
-from ..types import RhoEstimate, WsEstimate, Decomposition
-from .refit import refit_fixed_ws
+from ..types import RhoEstimate, WcEstimate, Decomposition
+from .refit import refit_fixed_wc
 from .robust import profile_ci
 
 
-def decompose(rho: RhoEstimate, ws: WsEstimate) -> Decomposition:
+def decompose(rho: RhoEstimate, wc: WcEstimate) -> Decomposition:
     """Split the similarity curve into genetic and shared-environment variance.
 
-    rho: Phase 1 output.  ws: Phase 2 output.
-    Returns (V_G, V_S) at fixed w_S = ws.w_s_cal with their conditional SE, plus
-    the 95% profile CI for w_S (a CI covering 0.5 means the split is not identified).
+    rho: Phase 1 output.  wc: Phase 2 output.
+    Returns (V_A, V_C) at fixed w_C = wc.w_c_cal with their conditional SE, plus
+    the 95% profile CI for w_C (a CI covering 0.5 means the split is not identified).
     """
-    w_cal = float(np.clip(ws.w_s_cal, *CLIP))
+    w_cal = float(np.clip(wc.w_c_cal, *CLIP))
 
-    beta, se = refit_fixed_ws(rho.rho_hat, rho.Sigma_hat, w_cal)
-    V_G, V_S = float(beta[0]), float(beta[1])
-    se_VG, se_VS = float(se[0]), float(se[1])
-    z_VG = V_G / se_VG if se_VG > 0 else float("nan")
-    z_VS = V_S / se_VS if se_VS > 0 else float("nan")
+    beta, se = refit_fixed_wc(rho.rho_hat, rho.Sigma_hat, w_cal)
+    V_A, V_C = float(beta[0]), float(beta[1])
+    se_VA, se_VC = float(se[0]), float(se[1])
+    z_VA = V_A / se_VA if se_VA > 0 else float("nan")
+    z_VC = V_C / se_VC if se_VC > 0 else float("nan")
 
     wci_lo, wci_hi = profile_ci(rho.rho_hat, rho.Sigma_hat)
 
     return Decomposition(
-        V_G=V_G, V_S=V_S, se_VG_cond=se_VG, se_VS_cond=se_VS,
-        z_VG=z_VG, z_VS=z_VS, w_s_cal=w_cal,
+        V_A=V_A, V_C=V_C, se_VA_cond=se_VA, se_VC_cond=se_VC,
+        z_VA=z_VA, z_VC=z_VC, w_c_cal=w_cal,
         wci_lo=wci_lo, wci_hi=wci_hi,
     )

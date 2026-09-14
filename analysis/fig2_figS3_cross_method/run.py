@@ -4,7 +4,7 @@
     .venv/bin/python  ...  /run.py --check        # 1 replicate self-check (dumps I/O)
 
 Flow:
-    for (scale, w_S, rep):
+    for (scale, w_C, rep):
         pairs, pheno = dgm.generate(...)          # data
         rho          = evidence.compute(...)      # Phase 1 summary (once per replicate, shared by every method)
         for spec in SPECS(backend=loop):          # falconer, he, bigfam, bigfam_v1, quanther(LDAK)
@@ -38,11 +38,11 @@ from bigfam.io import load_artifacts
 
 warnings.filterwarnings("once", message="Sigma_hat not PSD")
 
-_COLS = ["scale", "w_s", "rep", "method", "condition",
-         "V_G_hat", "V_S_hat", "w_s_cal", "note"]
+_COLS = ["scale", "w_c", "rep", "method", "condition",
+         "V_A_hat", "V_C_hat", "w_c_cal", "note"]
 
 # ── method x condition manifest ─────────────────────────────────────────────
-# backend "loop"  : per-replicate, run(rho, pairs, pheno, scale) -> {V_G, ...}
+# backend "loop"  : per-replicate, run(rho, pairs, pheno, scale) -> {V_A, ...}
 # backend "batch" : SEM -- batched outside the loop (sem_long handles it, run=None)
 # scales          : which scale this method runs on (he=continuous, pcgc=binary; the rest run both)
 Spec = namedtuple("Spec", "method condition backend run scales")
@@ -50,7 +50,7 @@ Spec.__new__.__defaults__ = (("continuous", "binary"),)   # scales defaults to b
 
 
 def build_specs():
-    calib = load_artifacts()                                          # packaged ws_calibration.json
+    calib = load_artifacts()                                          # packaged wc_calibration.json
     bigfam_fn = bf.make(calib)
     bigfam_v1_fn = bfv1.make()                                         # old band machine (fixed seed, stochastic)
     native = lambda fn: (lambda rho, pairs, pheno, scale: fn(rho))     # ignores individual-level data
@@ -70,19 +70,19 @@ def build_specs():
     ]
 
 
-def _row(scale, w_s, rep, sp, out):
-    return {"scale": scale, "w_s": w_s, "rep": rep,
+def _row(scale, w_c, rep, sp, out):
+    return {"scale": scale, "w_c": w_c, "rep": rep,
             "method": sp.method, "condition": sp.condition,
-            "V_G_hat": out.get("V_G", np.nan), "V_S_hat": out.get("V_S", np.nan),
-            "w_s_cal": out.get("w_s_cal", np.nan),
+            "V_A_hat": out.get("V_A", np.nan), "V_C_hat": out.get("V_C", np.nan),
+            "w_c_cal": out.get("w_c_cal", np.nan),
             "note": out.get("note") or out.get("gate", "")}
 
 
 def _sem_records(sem_store):
-    """sem_store -> sem.R input dicts. id=scale/w_s/rep, Nd is per-DOR (same N_d everywhere)."""
+    """sem_store -> sem.R input dicts. id=scale/w_c/rep, Nd is per-DOR (same N_d everywhere)."""
     recs = []
-    for scale, w_s, rep, mats, nd in sem_store:
-        r = {"scale": scale, "w_s": w_s, "rep": rep}
+    for scale, w_c, rep, mats, nd in sem_store:
+        r = {"scale": scale, "w_c": w_c, "rep": rep}
         for d, M in enumerate(mats, start=1):
             r[f"c11_{d}"], r[f"c12_{d}"], r[f"c22_{d}"] = M[0, 0], M[0, 1], M[1, 1]
             r[f"Nd_{d}"] = nd
@@ -91,11 +91,11 @@ def _sem_records(sem_store):
 
 
 def sem_long(sem_store, out_csv):
-    """SEM batch -> long rows (method=sem, V_G_hat/V_S_hat/note). No R -> []."""
+    """SEM batch -> long rows (method=sem, V_A_hat/V_C_hat/note). No R -> []."""
     df = run_sem(_sem_records(sem_store), out_csv)
     if df.empty:
         return []
-    df = df.rename(columns={"V_G": "V_G_hat", "V_S": "V_S_hat"})
+    df = df.rename(columns={"V_A": "V_A_hat", "V_C": "V_C_hat"})
     df["note"] = "status" + df.pop("status").astype("Int64").astype(str)
     df["method"] = "sem"
     return df.to_dict("records")
@@ -110,19 +110,19 @@ def run(reps, n_d=None):
     t0 = time.time()
 
     for s_idx, scale in enumerate(config.SCALES):
-        for w_idx, w_s in enumerate(config.WS_GRID):
+        for w_idx, w_c in enumerate(config.WS_GRID):
             tic = time.time()
             for rep in range(reps):
                 seed = config.replicate_seed(s_idx, w_idx, rep)
-                pairs, pheno = dgm.generate(scale, w_s, seed, n_d=n_d)
+                pairs, pheno = dgm.generate(scale, w_c, seed, n_d=n_d)
                 rho = evidence.compute(pairs, pheno, scale)
-                sem_store.append((scale, w_s, rep,
+                sem_store.append((scale, w_c, rep,
                                   sem_summary(pairs, pheno, scale, rho.rho_hat), n_d))
                 for sp in loop_specs:
                     if scale not in sp.scales:                 # he=continuous, pcgc=binary
                         continue
-                    rows.append(_row(scale, w_s, rep, sp, sp.run(rho, pairs, pheno, scale)))
-            print(f"  loop {scale:10s} w_S={w_s}  {reps} reps  ({time.time()-tic:5.1f}s)")
+                    rows.append(_row(scale, w_c, rep, sp, sp.run(rho, pairs, pheno, scale)))
+            print(f"  loop {scale:10s} w_C={w_c}  {reps} reps  ({time.time()-tic:5.1f}s)")
 
     sem_rows = sem_long(sem_store, config.RESULTS_DIR / "_sem_out.csv")
     print(f"  sem  batch  {len(sem_rows)} rows")
@@ -134,34 +134,34 @@ def run(reps, n_d=None):
 
 def check():
     """1 replicate (large N) self-check -- Phase 1 rho accuracy, each method's output, engine I/O dumps."""
-    scale, w_s, seed = "continuous", 0.2, 0
-    pairs, pheno = dgm.generate(scale, w_s, seed, n_d=20_000)
+    scale, w_c, seed = "continuous", 0.2, 0
+    pairs, pheno = dgm.generate(scale, w_c, seed, n_d=20_000)
     rho = evidence.compute(pairs, pheno, scale)
 
     print("=== PHASE1 evidence: rho_hat vs true (large N, should be close) ===")
     ok = True
     for d in (1, 2, 3):
-        tr, hat = config.true_rho(w_s, d), rho.rho_hat[d - 1]
+        tr, hat = config.true_rho(w_c, d), rho.rho_hat[d - 1]
         good = abs(tr - hat) < 0.02; ok &= good
         print(f"  DOR{d}  true {tr:.3f}  hat {hat:.3f}  |diff| {abs(tr-hat):.3f}  "
               f"{'ok' if good else 'BAD'}")
     assert ok, "rho_hat far from truth -- Phase1/evidence broken"
 
-    print("\n=== METHODS: V_G_hat (truth V_G=0.5, V_S=0.2; loop backend) ===")
-    vg = {}
+    print("\n=== METHODS: V_A_hat (truth V_A=0.5, V_C=0.2; loop backend) ===")
+    va = {}
     for sp in build_specs():
         if sp.backend != "loop" or scale not in sp.scales:
             continue
         out = sp.run(rho, pairs, pheno, scale)
-        vg[(sp.method, sp.condition)] = out["V_G"]
-        vs = out.get("V_S")
-        vs_s = f"  V_S={vs:.3f}" if vs is not None and not np.isnan(vs) else ""
-        print(f"  {sp.method:9s} {sp.condition:6s} V_G={out['V_G']:.3f}{vs_s}  "
+        va[(sp.method, sp.condition)] = out["V_A"]
+        vc = out.get("V_C")
+        vc_s = f"  V_C={vc:.3f}" if vc is not None and not np.isnan(vc) else ""
+        print(f"  {sp.method:9s} {sp.condition:6s} V_A={out['V_A']:.3f}{vc_s}  "
               f"{out.get('note') or out.get('gate', '')}")
-    assert 0.4 < vg[("bigfam", "decay")] < 0.6, "BIGFAM should recover near 0.5"
-    assert 0.3 < vg[("bigfam_v1", "decay")] < 0.7, "BIGFAM.v1 too should recover near 0.5 on clean rho"
-    assert vg[("falconer", "AE")] > vg[("bigfam", "decay")], \
-        "Falconer should be inflated by absorbing V_S, above BIGFAM"
+    assert 0.4 < va[("bigfam", "decay")] < 0.6, "BIGFAM should recover near 0.5"
+    assert 0.3 < va[("bigfam_v1", "decay")] < 0.7, "BIGFAM.v1 too should recover near 0.5 on clean rho"
+    assert va[("falconer", "AE")] > va[("bigfam", "decay")], \
+        "Falconer should be inflated by absorbing V_C, above BIGFAM"
 
     print("\n=== ENGINE I/O: LDAK input (relatives 'step') head + output ===")
     d = config.RESULTS_DIR / "_check_ldak"; d.mkdir(parents=True, exist_ok=True)
@@ -169,25 +169,25 @@ def check():
     print(f"  input {d/'step.rel'} (col5=w_G^d, col6=c_ij):")
     for line in (d / "step.rel").read_text().splitlines()[:3]:
         print(f"    {line}")
-    print(f"  output quanther step V_G={vg.get(('quanther','step'), float('nan')):.3f}")
+    print(f"  output quanther step V_A={va.get(('quanther','step'), float('nan')):.3f}")
 
     print("\n=== ENGINE I/O: SEM input (per-DOR sample covariance) + output (1 rep batch) ===")
     mats = sem_summary(pairs, pheno, scale, rho.rho_hat)
     for d, M in enumerate(mats, 1):
         print(f"  input DOR{d} cov=[[{M[0,0]:.3f},{M[0,1]:.3f}],[{M[1,0]:.3f},{M[1,1]:.3f}]]")
-    for r in sem_long([(scale, w_s, 0, mats, 20_000)],
+    for r in sem_long([(scale, w_c, 0, mats, 20_000)],
                       config.RESULTS_DIR / "_check_sem.csv"):
-        print(f"  output sem {r['condition']:6s} V_G={r['V_G_hat']:.3f} "
-              f"V_S={r['V_S_hat']:.3f} {r['note']}")
+        print(f"  output sem {r['condition']:6s} V_A={r['V_A_hat']:.3f} "
+              f"V_C={r['V_C_hat']:.3f} {r['note']}")
 
     print("\n=== BINARY: PCGC vs Tet-Falconer (both unadjusted -- should be close) ===")
-    pb, phb = dgm.generate("binary", w_s, seed, n_d=20_000)
+    pb, phb = dgm.generate("binary", w_c, seed, n_d=20_000)
     rb = evidence.compute(pb, phb, "binary")
-    vg_pcgc = pcgc.estimate(rb, pb, phb, config.K_PREV)["V_G"]
-    vg_tetf = falconer.estimate(rb)["V_G"]                 # Tet-Falconer (liability tetrachoric)
-    print(f"  PCGC         V_G={vg_pcgc:.3f}  (prevalence K={config.K_PREV})")
-    print(f"  Tet-Falconer V_G={vg_tetf:.3f}")
-    assert abs(vg_pcgc - vg_tetf) < 0.10, "PCGC and tetrachoric too far apart -- check unadjusted assumptions"
+    va_pcgc = pcgc.estimate(rb, pb, phb, config.K_PREV)["V_A"]
+    va_tetf = falconer.estimate(rb)["V_A"]                 # Tet-Falconer (liability tetrachoric)
+    print(f"  PCGC         V_A={va_pcgc:.3f}  (prevalence K={config.K_PREV})")
+    print(f"  Tet-Falconer V_A={va_tetf:.3f}")
+    assert abs(va_pcgc - va_tetf) < 0.10, "PCGC and tetrachoric too far apart -- check unadjusted assumptions"
 
     print("\ncheck passed -- Phase1, methods, engine I/O, PCGC all normal.")
 
@@ -224,8 +224,8 @@ def main():
         check()
         return
 
-    print(f"truth: V_G={config.V_G_TRUE} V_S={config.V_S_TRUE}  N_d={config.N_D}  "
-          f"reps={args.reps}  w_S={config.WS_GRID}")
+    print(f"truth: V_A={config.V_A_TRUE} V_C={config.V_C_TRUE}  N_d={config.N_D}  "
+          f"reps={args.reps}  w_C={config.WS_GRID}")
     raw = run(args.reps)
     out = config.RESULTS_DIR / "raw.parquet"
     raw.to_parquet(out, index=False)

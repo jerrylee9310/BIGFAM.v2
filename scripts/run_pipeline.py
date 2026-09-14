@@ -1,4 +1,4 @@
-"""CLI: relative pairs -> V_G, V_S (Phase 1 -> 2 -> 3).
+"""CLI: relative pairs -> V_A, V_C (Phase 1 -> 2 -> 3).
 
     python scripts/run_pipeline.py examples/toy_data height continuous \
         --cov-cols age sex --out outputs/
@@ -22,13 +22,13 @@ def run(data_dir, name, pheno_type, artifacts=DEFAULT_ARTIFACTS,
     calib = load_artifacts(artifacts)
 
     rho = bigfam.estimate_rho(pairs, cov, pheno, pheno_type, cov_cols)   # Phase 1
-    ws = bigfam.estimate_ws(rho, calib)                                  # Phase 2
-    result = bigfam.decompose(rho, ws)                                   # Phase 3
+    wc = bigfam.estimate_wc(rho, calib)                                  # Phase 2
+    result = bigfam.decompose(rho, wc)                                   # Phase 3
 
     if out:
         save_rho(rho, out)
         save_decomposition(result, out)
-    return rho, ws, result
+    return rho, wc, result
 
 
 def main():
@@ -39,17 +39,17 @@ def main():
     ap.add_argument("--cov-cols", nargs="*", default=[],
                     help="covariate columns to adjust for (default: none)")
     ap.add_argument("--artifacts", default=str(DEFAULT_ARTIFACTS),
-                    help="directory holding ws_calibration.json (default: the packaged one)")
+                    help="directory holding wc_calibration.json (default: the packaged one)")
     ap.add_argument("--out", default=None, help="write result TSVs here")
     args = ap.parse_args()
 
-    rho, ws, result = run(args.data_dir, args.name, args.pheno_type,
+    rho, wc, result = run(args.data_dir, args.name, args.pheno_type,
                           args.artifacts, args.cov_cols, args.out)
     print(f"covariates: {', '.join(args.cov_cols) if args.cov_cols else 'none'}")
     print(f"rho_hat   = {rho.rho_hat}")
-    print(f"w_s_cal   = {result.w_s_cal:.4f}  w-CI=[{result.wci_lo:.3f}, {result.wci_hi:.3f}]")
-    print(f"V_G={result.V_G:.4f} (z {result.z_VG:.2f})  "
-          f"V_S={result.V_S:.4f} (z {result.z_VS:.2f})")
+    print(f"w_c_cal   = {result.w_c_cal:.4f}  w-CI=[{result.wci_lo:.3f}, {result.wci_hi:.3f}]")
+    print(f"V_A={result.V_A:.4f} (z {result.z_VA:.2f})  "
+          f"V_C={result.V_C:.4f} (z {result.z_VC:.2f})")
 
 
 if __name__ == "__main__":

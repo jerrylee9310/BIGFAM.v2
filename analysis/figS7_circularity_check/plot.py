@@ -66,12 +66,12 @@ def table(d):
             if len(s) < 50:
                 continue
             for m in METHODS:
-                x = s[["V_G_true", f"VA_{m}"]].dropna()
+                x = s[["V_A_true", f"VA_{m}"]].dropna()
                 if len(x) < 2 or x[f"VA_{m}"].std() < 1e-12:
                     continue
-                b, a = np.polyfit(x.V_G_true, x[f"VA_{m}"], 1)
+                b, a = np.polyfit(x.V_A_true, x[f"VA_{m}"], 1)
                 rows.append(dict(row=key, m=m, t=t, n=len(s),
-                                 r=x[f"VA_{m}"].corr(x.V_G_true), alpha=a, beta=b))
+                                 r=x[f"VA_{m}"].corr(x.V_A_true), alpha=a, beta=b))
     return pd.DataFrame(rows)
 
 

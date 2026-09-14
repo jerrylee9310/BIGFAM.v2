@@ -26,7 +26,7 @@ Both figures are trait-level: nothing here needs individual-level data.
 ## Files
 
 - `compute.py` — rebuilds, in memory, the three trait-level tables the paper's
-  working repo used as figure inputs (`famhist()`, `vg_matched()`,
+  working repo used as figure inputs (`famhist()`, `va_matched()`,
   `engine_compare()`) from Supplementary Data 1. Run it directly to print the
   summary numbers quoted above.
 - `plot_fig5.py` — writes `fig5.png`. `plot_figS8.py` — writes `figS8.png`.
@@ -44,7 +44,7 @@ place it there; column dictionary in `supple_data/README.md`). It carries 6
 significant digits, so rebuilt numbers differ from the frozen working-repo
 tables at the $10^{-5}$ level (see Validation). SD1 uses manuscript notation
 (`V_A`, `V_C`, `w_C`); the rebuilt tables keep the working repo's package
-notation (`V_G`, `V_S`, `w_s_cal`) so the plotting code stays byte-identical —
+notation (`V_A`, `V_C`, `w_c_cal`) so the plotting code stays byte-identical —
 `RENAME` in `compute.py` is the mapping.
 
 How the three tables are cut from SD1:

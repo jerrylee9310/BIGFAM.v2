@@ -42,7 +42,7 @@ CUTS = [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30]
 
 def _r(sub, m, t):
     """Merged point estimate: Pearson r between method h2 and SNP-h2 on dist >= t."""
-    x = sub[(sub.w_s_cal - 0.5).abs() >= t][["snp_h2", f"{m}_h2"]].dropna()
+    x = sub[(sub.w_c_cal - 0.5).abs() >= t][["snp_h2", f"{m}_h2"]].dropna()
     return np.corrcoef(x.snp_h2, x[f"{m}_h2"])[0, 1] if len(x) >= 3 else np.nan
 
 

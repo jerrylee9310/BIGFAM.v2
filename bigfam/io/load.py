@@ -48,12 +48,12 @@ DEFAULT_ARTIFACTS = Path(__file__).resolve().parent.parent / "artifacts"
 
 
 def load_artifacts(artifacts_dir=DEFAULT_ARTIFACTS) -> CalibrationCoef:
-    """Read the trained Phase 2 calibration from <artifacts_dir>/ws_calibration.json.
+    """Read the trained Phase 2 calibration from <artifacts_dir>/wc_calibration.json.
 
     Defaults to the one shipped inside the package, so `load_artifacts()` works
     from an installed wheel with no repository checkout.
     """
-    with open(Path(artifacts_dir) / "ws_calibration.json") as f:
+    with open(Path(artifacts_dir) / "wc_calibration.json") as f:
         c = json.load(f)
     return CalibrationCoef(
         feature_order=c["feature_order"],

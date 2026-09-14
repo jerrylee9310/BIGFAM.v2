@@ -67,7 +67,7 @@ def evidence(pairs, pheno):
 
 
 def calibrate_predict_batch(df, calib):
-    """Batch form of bigfam.phase2.calibrate.calibrate_ws (that one is single-vector)."""
+    """Batch form of bigfam.phase2.calibrate.calibrate_wc (that one is single-vector)."""
     X = df[FEAT_ALL].to_numpy(dtype=float)
     X_std = (X - calib.scaler_mean) / calib.scaler_scale
     lo, hi = calib.clip
@@ -87,7 +87,7 @@ def gls_unconstrained(rho, Sinv, w_vec):
 
 
 def main():
-    calib = load_artifacts()          # packaged ws_calibration.json
+    calib = load_artifacts()          # packaged wc_calibration.json
     rows = []
     for wi, w in enumerate(WS):
         rhos, Sigs = [], []

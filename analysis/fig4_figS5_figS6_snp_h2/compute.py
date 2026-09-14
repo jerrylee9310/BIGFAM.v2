@@ -74,7 +74,7 @@ def subsets(d):
     The original continued with tier / v1class conditions; those come *after* the
     cumulative ones in the RNG stream, so dropping them changes nothing above."""
     c, b = d.kind == "continuous", d.kind == "binary"
-    dist = (d.w_s_cal - 0.5).abs()
+    dist = (d.w_c_cal - 0.5).abs()
     out = [("overall", "all", "both", pd.Series(True, index=d.index)),
            ("overall", "all", "continuous", c), ("overall", "all", "binary", b)]
     for axis, bins in [("dist_bin", DIST_BINS), ("dist_bin3", DIST_BINS3)]:

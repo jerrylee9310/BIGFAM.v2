@@ -13,7 +13,7 @@ rates coincide, so the model is non-identifiable -> every method is biased
 upward. BIGFAM.v1 doesn't support binary -> NA. Colors = model class (same
 legend as Fig. 2), BIGFAM markers are larger.
 
-Input: results/raw.parquet (column names are the pipeline's own: w_s, V_G_hat).
+Input: results/raw.parquet (column names are the pipeline's own: w_c, V_A_hat).
 Output: figS3.png. Style from _style.py.
 """
 from __future__ import annotations
@@ -59,7 +59,7 @@ def pint(ax, y, s, col, hero=False):
     ax.plot(s.mean(), y, "o", color=col, ms=5.4 if hero else 4.2, mec="white", mew=0.9, zorder=5)
 
 
-def panel(ax, raw, ws, scale, letter, coltitle, xlabel, ylabel):
+def panel(ax, raw, wc, scale, letter, coltitle, xlabel, ylabel):
     n = len(ROWS)
     ax.axvline(V_A_TRUE, ls=(0, (4, 3)), lw=0.8, color="#333333", zorder=1)
     for i, (method, cond, klass, _) in enumerate(ROWS):
@@ -69,8 +69,8 @@ def panel(ax, raw, ws, scale, letter, coltitle, xlabel, ylabel):
                     fontsize=6, fontstyle="italic")
             continue
         m = "pcgc" if (scale == "binary" and method == "he") else method
-        s = raw[(raw["scale"] == scale) & (raw["w_s"] == ws)
-                & (raw["method"] == m) & (raw["condition"] == cond)]["V_G_hat"]
+        s = raw[(raw["scale"] == scale) & (raw["w_c"] == wc)
+                & (raw["method"] == m) & (raw["condition"] == cond)]["V_A_hat"]
         if len(s) == 0:
             continue
         pint(ax, y, s, C[klass], hero=method in HERO)
@@ -93,8 +93,8 @@ def main():
     fig, axes = plt.subplots(2, 3, figsize=(W2, 4.6), sharey=True, sharex=True)
     letters = "abcdef"
     for r, scale in enumerate(SCALES):
-        for c, (ws, coltitle) in enumerate(WS_COLS):
-            panel(axes[r, c], raw, ws, scale,
+        for c, (wc, coltitle) in enumerate(WS_COLS):
+            panel(axes[r, c], raw, wc, scale,
                   letter=letters[r * 3 + c],
                   coltitle=coltitle if r == 0 else None,
                   xlabel=(r == 1),
@@ -115,7 +115,7 @@ def main():
     fig.tight_layout(rect=(0, 0, 1, 0.95), h_pad=2.5, w_pad=1.5)
     save(fig, "figS3")
     plt.close(fig)
-    print(f"(2x3: {SCALES} x w_s={[w for w, _ in WS_COLS]})")
+    print(f"(2x3: {SCALES} x w_c={[w for w, _ in WS_COLS]})")
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 The standard binary generalization of HE ("Haseman-Elston regression is a
 special case of PCGC"). Under the liability-threshold model, the product of
 normalized phenotypes regresses on genetic relatedness with slope c*h2_l.
-zero-class (s_d=0, additive genetics only) -- V_S>0 gets absorbed the same way
+zero-class (s_d=0, additive genetics only) -- V_C>0 gets absorbed the same way
 as Falconer/HE.
 
 Golan eq[4]:  E[z_i z_j] = c * h2_l * G_ij        (z=normalized phenotype, G=relatedness=w_G^d)
@@ -47,7 +47,7 @@ def estimate(rho, pairs, pheno, K, cov=None, cov_cols=None):
         z2 = z.loc[pairs["id2"].values].to_numpy()
         slope = float((z1 * z2 * G).sum() / (G * G).sum())   # origin OLS (HE regression)
         c = P * (1.0 - P) * phi ** 2 / (K ** 2 * (1.0 - K) ** 2)
-        return {"V_G": slope / c}                  # h2_l = slope / c
+        return {"V_A": slope / c}                  # h2_l = slope / c
 
     # covariate-adjusted -- Golan per-individual. Not exercised by this
     # simulation (which has no covariates); kept for parity with the source.
@@ -66,7 +66,7 @@ def estimate(rho, pairs, pheno, K, cov=None, cov_cols=None):
     q1 = q.loc[pairs["id1"].values].to_numpy(); q2 = q.loc[pairs["id2"].values].to_numpy()
     x = q1 * q2 * G                                # per-individual c absorbed into the regressor
     slope = float((z1 * z2 * x).sum() / (x * x).sum())       # origin OLS -> h2_l
-    return {"V_G": slope}
+    return {"V_A": slope}
 
 
 def _demo():
@@ -81,9 +81,9 @@ def _demo():
     K = float(pheno["phenotype"].mean())                     # K=P -> both branches on the same scale
     pairs = pd.DataFrame({"id1": ids[:-1], "id2": ids[1:],
                           "dor": rng.integers(1, 4, n - 1)})
-    h_plain = estimate(None, pairs, pheno, K)["V_G"]
+    h_plain = estimate(None, pairs, pheno, K)["V_A"]
     h_cov0 = estimate(None, pairs, pheno, K,
-                      cov=pd.DataFrame(index=ids), cov_cols=[])["V_G"]
+                      cov=pd.DataFrame(index=ids), cov_cols=[])["V_A"]
     assert abs(h_plain - h_cov0) < 1e-6, (h_plain, h_cov0)
     print(f"_demo ok: plain={h_plain:.4f}  cov[]={h_cov0:.4f}")
 

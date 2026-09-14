@@ -42,7 +42,7 @@ internal names the scripts use; `load_sd1()` maps them back:
 
 | Supplementary Data 1 | script | |
 |---|---|---|
-| `V_A`, `V_C`, `w_C` | `V_G`, `V_S`, `w_s_cal` | BIGFAM.v2 estimates and decay rate |
+| `V_A`, `V_C`, `w_C` | `V_A`, `V_C`, `w_c_cal` | BIGFAM.v2 estimates and decay rate |
 | `cohort` (`GS`/`UKB`) | `dataset` (`GS23471`/`UKB41907`) | cohort label |
 | `trait_id` | `trait` | |
 | `h2_<Method>`, `se_<Method>` | `<method>_h2`, `<method>_se` | Falconer, HE_PCGC, SEM_step, SEM_const, QHTH_step, QHTH_const → falconer, herg, sem_step, sem_const, ldak_step, ldak_const |

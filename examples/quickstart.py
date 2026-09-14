@@ -1,6 +1,6 @@
 """End-to-end demo on synthetic data — no real phenotype data required.
 
-Generates relative pairs at dor 1/2/3 from a known (V_G, V_S, w_S), runs the
+Generates relative pairs at dor 1/2/3 from a known (V_A, V_C, w_C), runs the
 full Phase 1 -> 2 -> 3 pipeline, and compares the estimates to the truth. The
 three DataFrames built in make_synthetic_pairs() are exactly the input shape
 bigfam.estimate_rho expects, so copy that part for your own data.
@@ -15,17 +15,17 @@ import pandas as pd
 import bigfam
 from bigfam.io import load_artifacts
 
-V_G_TRUE, V_S_TRUE, W_S_TRUE = 0.5, 0.2, 0.2   # ground truth this demo recovers
+V_A_TRUE, V_C_TRUE, W_S_TRUE = 0.5, 0.2, 0.2   # ground truth this demo recovers
 N_PER_DOR = 10_000
 SEED = 0
 
 
-def make_synthetic_pairs(v_g=V_G_TRUE, v_s=V_S_TRUE, w_s=W_S_TRUE,
+def make_synthetic_pairs(v_g=V_A_TRUE, v_s=V_C_TRUE, w_c=W_S_TRUE,
                           n_per_dor=N_PER_DOR, seed=SEED):
     """Synthetic continuous-trait relative pairs (no covariates).
 
     Each pair is a draw from a bivariate normal whose correlation is the model's
-    rho_d = 0.5^d * V_G + w_S^(d-1) * V_S. Every individual appears in exactly
+    rho_d = 0.5^d * V_A + w_C^(d-1) * V_C. Every individual appears in exactly
     one pair here; real data reuses individuals, which is what the cluster
     sandwich in Phase 1 corrects for.
 
@@ -35,7 +35,7 @@ def make_synthetic_pairs(v_g=V_G_TRUE, v_s=V_S_TRUE, w_s=W_S_TRUE,
     id1_all, id2_all, dor_all, y1_all, y2_all = [], [], [], [], []
     next_id = 0
     for d in (1, 2, 3):
-        rho = 0.5 ** d * v_g + w_s ** (d - 1) * v_s
+        rho = 0.5 ** d * v_g + w_c ** (d - 1) * v_s
         z1 = rng.standard_normal(n_per_dor)
         z2 = rng.standard_normal(n_per_dor)
         y1 = z1
@@ -62,15 +62,15 @@ def main():
     calib = load_artifacts()
 
     rho = bigfam.estimate_rho(pairs, cov, pheno, "continuous", cov_cols=[])   # Phase 1
-    ws = bigfam.estimate_ws(rho, calib)                                       # Phase 2
-    result = bigfam.decompose(rho, ws)                                        # Phase 3
+    wc = bigfam.estimate_wc(rho, calib)                                       # Phase 2
+    result = bigfam.decompose(rho, wc)                                        # Phase 3
 
     print(f"rho_hat = {rho.rho_hat}")
-    print(f"w_S:  true={W_S_TRUE:.3f}  est={result.w_s_cal:.3f}  "
+    print(f"w_C:  true={W_S_TRUE:.3f}  est={result.w_c_cal:.3f}  "
           f"CI=[{result.wci_lo:.3f}, {result.wci_hi:.3f}]")
-    print(f"V_G:  true={V_G_TRUE:.3f}  est={result.V_G:.3f}  se={result.se_VG_cond:.3f}")
-    print(f"V_S:  true={V_S_TRUE:.3f}  est={result.V_S:.3f}  se={result.se_VS_cond:.3f}")
-    print("(se is conditional on w_S)")
+    print(f"V_A:  true={V_A_TRUE:.3f}  est={result.V_A:.3f}  se={result.se_VA_cond:.3f}")
+    print(f"V_C:  true={V_C_TRUE:.3f}  est={result.V_C:.3f}  se={result.se_VC_cond:.3f}")
+    print("(se is conditional on w_C)")
 
 
 if __name__ == "__main__":

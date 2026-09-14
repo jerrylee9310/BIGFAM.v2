@@ -15,7 +15,7 @@ from .contrast import contrast_feats_batch
 from .raw import raw_feats_batch
 
 # The 24 features, in the order the trained artifact expects. Changing this
-# order (or the names) invalidates every existing ws_calibration.json.
+# order (or the names) invalidates every existing wc_calibration.json.
 FEAT_ALL = [
     "slope_hat", "slope_se", "slope_z",                    # slope.py
     "w_map", "profile_width", "middle_mass",               # profile.py

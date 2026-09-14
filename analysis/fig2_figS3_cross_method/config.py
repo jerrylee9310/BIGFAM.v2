@@ -1,14 +1,14 @@
-"""Shared simulation parameters. Truth is fixed (V_G=0.5, V_S=0.2); methods are
-scored by bias = V_G_hat - 0.5.
+"""Shared simulation parameters. Truth is fixed (V_A=0.5, V_C=0.2); methods are
+scored by bias = V_A_hat - 0.5.
 """
 from __future__ import annotations
 
 from pathlib import Path
 
 # ── truth ─────────────────────────────────────────────────────────────────────
-V_G_TRUE = 0.5
-V_S_TRUE = 0.2
-V_E_TRUE = 1.0 - V_G_TRUE - V_S_TRUE      # 0.3
+V_A_TRUE = 0.5
+V_C_TRUE = 0.2
+V_E_TRUE = 1.0 - V_A_TRUE - V_C_TRUE      # 0.3
 W_G = 0.5                                  # Mendelian genetic decay per DOR (fixed)
 
 # ── sweep / grid ──────────────────────────────────────────────────────────────
@@ -33,11 +33,11 @@ _HERE = Path(__file__).resolve().parent
 RESULTS_DIR = _HERE / "results"
 
 
-def true_rho(w_s: float, d: int) -> float:
-    """True relative correlation rho_d = w_G^d * V_G + w_S^{d-1} * V_S."""
-    return W_G ** d * V_G_TRUE + w_s ** (d - 1) * V_S_TRUE
+def true_rho(w_c: float, d: int) -> float:
+    """True relative correlation rho_d = w_G^d * V_A + w_C^{d-1} * V_C."""
+    return W_G ** d * V_A_TRUE + w_c ** (d - 1) * V_C_TRUE
 
 
-def replicate_seed(scale_idx: int, ws_idx: int, rep: int) -> int:
-    """Deterministic per-(scale, w_S, rep) seed -- reproducible."""
-    return SEED_BASE + scale_idx * 1_000_000 + ws_idx * 100_000 + rep
+def replicate_seed(scale_idx: int, wc_idx: int, rep: int) -> int:
+    """Deterministic per-(scale, w_C, rep) seed -- reproducible."""
+    return SEED_BASE + scale_idx * 1_000_000 + wc_idx * 100_000 + rep

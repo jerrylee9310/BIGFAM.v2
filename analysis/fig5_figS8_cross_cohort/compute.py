@@ -8,11 +8,11 @@ fit database. Every number in them is also in Supplementary Data 1 (SD1,
 trait-level, 6 significant digits), so they are rebuilt from SD1 here:
 
   famhist()         GS family-history traits (18 rows)               -- Fig. 5a
-  vg_matched()      cross-cohort |dV_A| in three pairing categories  -- Fig. 5b
+  va_matched()      cross-cohort |dV_A| in three pairing categories  -- Fig. 5b
                     (18 rows: 2 same-cohort, 4 two-cohort, 12 mis-paired)
   engine_compare()  5 GS<->UKB pairs x 8 methods (40 rows)           -- Fig. 5c, S8
 
-Column names follow the frozen tables (package notation V_G / V_S / w_s_cal);
+Column names follow the frozen tables (package notation V_A / V_C / w_c_cal);
 the manuscript and SD1 write V_A / V_C / w_C. RENAME below is the mapping.
 """
 from __future__ import annotations
@@ -28,9 +28,9 @@ SD1 = HERE.parents[1] / "supple_data" / "Supplementary_Data_1_trait_estimates.cs
 
 # SD1 column -> frozen-table column
 RENAME = {"cohort": "dataset", "trait_id": "trait", "trait_type": "kind",
-          "V_A": "V_G", "V_C": "V_S", "w_C": "w_s_cal",
+          "V_A": "V_A", "V_C": "V_C", "w_C": "w_c_cal",
           "w_C_ci_lo": "wci_lo", "w_C_ci_hi": "wci_hi",
-          "se_V_A": "se_VG_cond", "se_V_C": "se_VS_cond", "z_V_A": "z_VG", "z_V_C": "z_VS",
+          "se_V_A": "se_VA_cond", "se_V_C": "se_VC_cond", "z_V_A": "z_VA", "z_V_C": "z_VC",
           **{f"rho_dor{d}": f"rho{d}" for d in (1, 2, 3)},
           **{f"se_rho_dor{d}": f"se{d}" for d in (1, 2, 3)}}
 
@@ -62,7 +62,7 @@ METHODS = [("SEM-step", "SEM", "step", "h2_SEM_step"),
            ("BIGFAM.v2", "BIGFAM", "decay", "h2_BIGFAM_v2"),
            ("BIGFAM.v1", "BIGFAM", "decay", "h2_BIGFAM_v1")]
 
-PULL = ["V_G", "V_S", "w_s_cal", "z_VG", "z_VS", "rho1", "rho2", "rho3", "se_VG_cond"]
+PULL = ["V_A", "V_C", "w_c_cal", "z_VA", "z_VC", "rho1", "rho2", "rho3", "se_VA_cond"]
 
 
 def sd1():
@@ -80,7 +80,7 @@ def _cohorts(s):
 
 def _pool(gs, uk, drop=()):
     return [(g, u) for g, u in PAIRS
-            if g not in drop and gs.z_VG[g] > 2 and uk.z_VG[u] > 2]
+            if g not in drop and gs.z_VA[g] > 2 and uk.z_VA[u] > 2]
 
 
 def _pull(idx, key, pre):
@@ -98,12 +98,12 @@ def famhist():
     d["v_shape"] = d.rho3.gt(d.rho2)
     assert len(d) == 18 and d.informant.notna().all(), d.trait.tolist()
     cols = ["dataset", "trait", "kind", "rho1", "rho2", "rho3", "se1", "se2", "se3",
-            "V_G", "V_S", "se_VG_cond", "se_VS_cond", "z_VG", "z_VS", "w_s_cal",
+            "V_A", "V_C", "se_VA_cond", "se_VC_cond", "z_VA", "z_VC", "w_c_cal",
             "wci_lo", "wci_hi", "informant", "disease", "group", "v_shape"]
-    return d.sort_values(["informant", "w_s_cal"]).reset_index(drop=True)[cols]
+    return d.sort_values(["informant", "w_c_cal"]).reset_index(drop=True)[cols]
 
 
-def vg_matched():
+def va_matched():
     gs, uk = _cohorts(sd1())
     pool = _pool(gs, uk, drop=("Creat_mgdl",))
     assert [g for g, _ in pool] == ["Total_cholesterol", "Creatinine", "avg_dia", "FVC"], pool
@@ -118,9 +118,9 @@ def vg_matched():
               **_pull(gs, g, "x"), **_pull(uk, u, "y")}
              for (g, _), (_, u) in itertools.product(pool, pool) if (g, u) not in pool]
     m = pd.DataFrame(rows)
-    m["dVG"] = (m.x_V_G - m.y_V_G).abs()
-    m["se_d"] = np.hypot(m.x_se_VG_cond, m.y_se_VG_cond)
-    m["z"] = (m.x_V_G - m.y_V_G) / m.se_d
+    m["dVA"] = (m.x_V_A - m.y_V_A).abs()
+    m["se_d"] = np.hypot(m.x_se_VA_cond, m.y_se_VA_cond)
+    m["z"] = (m.x_V_A - m.y_V_A) / m.se_d
     m["p"] = 2 * norm.sf(m.z.abs())
     return m
 
@@ -141,13 +141,13 @@ def engine_compare():
 if __name__ == "__main__":
     from scipy.stats import mannwhitneyu
     f = famhist()
-    gp, pa = f[f.group.eq("grandparent")].w_s_cal, f[f.group.eq("parent")].w_s_cal
+    gp, pa = f[f.group.eq("grandparent")].w_c_cal, f[f.group.eq("parent")].w_c_cal
     print(f"famhist: {len(f)} rows | median w_C grandparent {gp.median():.3f} (n={len(gp)}) "
           f"vs parent {pa.median():.3f} (n={len(pa)}) | one-sided Mann-Whitney "
           f"P = {mannwhitneyu(gp, pa, alternative='greater').pvalue:.2e}")
-    m = vg_matched()
-    print(f"vg_matched: {len(m)} rows | median |dV_A| by category:",
-          m.groupby("layer").dVG.median().round(3).to_dict())
+    m = va_matched()
+    print(f"va_matched: {len(m)} rows | median |dV_A| by category:",
+          m.groupby("layer").dVA.median().round(3).to_dict())
     e = engine_compare()
     print(f"engine_compare: {len(e)} rows | creatinine |dV_A| by method:",
           e[e.trait.eq("Creatinine")].set_index("method").absd.round(3).to_dict())

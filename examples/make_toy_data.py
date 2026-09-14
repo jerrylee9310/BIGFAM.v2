@@ -5,7 +5,7 @@ the size or the truth it is generated from:
 
     python examples/make_toy_data.py --out examples/toy_data
 
-Both phenotypes come from one simulation at V_G = 0.5, V_S = 0.2, w_S = 0.2:
+Both phenotypes come from one simulation at V_A = 0.5, V_C = 0.2, w_C = 0.2:
 'height' is the continuous liability, 'disease' is that liability thresholded
 at the top 20%. Age and sex have a real effect on both, which is what Phase 1
 residualizes away; age is standardized (mean 0, sd 1), as the model expects,
@@ -23,7 +23,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-V_G_TRUE, V_S_TRUE, W_S_TRUE = 0.5, 0.2, 0.2
+V_A_TRUE, V_C_TRUE, W_S_TRUE = 0.5, 0.2, 0.2
 N_PER_DOR = 4_000
 PREVALENCE = 0.2
 SEED = 0
@@ -39,7 +39,7 @@ def make_tables(n_per_dor: int = N_PER_DOR, seed: int = SEED):
     pair_blocks, ids, liability = [], [], []
     next_id = 0
     for d in (1, 2, 3):
-        rho = 0.5 ** d * V_G_TRUE + W_S_TRUE ** (d - 1) * V_S_TRUE
+        rho = 0.5 ** d * V_A_TRUE + W_S_TRUE ** (d - 1) * V_C_TRUE
         z1 = rng.standard_normal(n_per_dor)
         z2 = rho * z1 + np.sqrt(1.0 - rho ** 2) * rng.standard_normal(n_per_dor)
 

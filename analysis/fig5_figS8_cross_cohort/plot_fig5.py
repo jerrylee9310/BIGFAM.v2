@@ -33,7 +33,7 @@ import seaborn as sns                                              # noqa: E402
 from scipy.stats import mannwhitneyu                               # noqa: E402
 
 from _style import C as _C, LW_SEC, LW_REF, W2, rc
-from compute import famhist, vg_matched, engine_compare
+from compute import famhist, va_matched, engine_compare
 
 HERE = Path(__file__).resolve().parent
 
@@ -56,17 +56,17 @@ def informants(ax):
 
     for grp, x in X.items():
         g = d[d.grp == grp]
-        ax.scatter(g.x, g.w_s_cal, s=15, color=C["decay"], alpha=0.85,
+        ax.scatter(g.x, g.w_c_cal, s=15, color=C["decay"], alpha=0.85,
                    linewidth=0, zorder=3)
-        ax.plot([x - 0.26, x + 0.26], [g.w_s_cal.median()] * 2,
+        ax.plot([x - 0.26, x + 0.26], [g.w_c_cal.median()] * 2,
                 color="k", lw=LW_SEC, zorder=4)
 
     # one-sided test of the pedigree-predicted inequality (grandparent > parent);
     # a single exact P, no stars
-    p = mannwhitneyu(d[d.grp == "grandparent"].w_s_cal,
-                     d[d.grp == "parent"].w_s_cal, alternative="greater").pvalue
+    p = mannwhitneyu(d[d.grp == "grandparent"].w_c_cal,
+                     d[d.grp == "parent"].w_c_cal, alternative="greater").pvalue
     m, e = f"{p:.1e}".split("e")
-    top = d.w_s_cal.max() + 0.055
+    top = d.w_c_cal.max() + 0.055
     ax.plot([0, 0, 1, 1], [top, top + .025, top + .025, top], color="0.3", lw=LW_REF)
     ax.text(0.5, top + .045, rf"$P$ = {m} $\times$ 10$^{{{int(e)}}}$", fontsize=7,
             color="0.2", ha="center", va="bottom")
@@ -80,9 +80,9 @@ def informants(ax):
 
 def layers(ax):
     """b -- BIGFAM.v2 only. All three categories come from the same 4 traits."""
-    m = vg_matched()
+    m = va_matched()
     for x, (L, col) in enumerate([("a", "0.45"), ("b", C["decay"]), ("c", "0.72")]):
-        v = m[m.layer.eq(L)].dVG.to_numpy()
+        v = m[m.layer.eq(L)].dVA.to_numpy()
         ax.scatter(x + RNG.uniform(-0.15, 0.15, len(v)), v, s=15, color=col,
                    alpha=0.85, linewidth=0, zorder=3)
         med = np.median(v)

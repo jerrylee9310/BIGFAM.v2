@@ -46,7 +46,7 @@ data — and everything here is computed from it. The scripts narrow it to the
 340 UKB traits with `snp_h2` (Generation Scotland has no Neale reference).
 
 `_sd1.load_sd1()` maps the public column names back to the internal ones:
-`V_A` → `V_G`, `V_C` → `V_S`, `w_C` → `w_s_cal`, `trait_type` → `kind`,
+`V_A` → `V_A`, `V_C` → `V_C`, `w_C` → `w_c_cal`, `trait_type` → `kind`,
 `h2_<Method>`/`se_<Method>` → `<method>_h2`/`<method>_se` (Falconer →
 `falconer`, HE_PCGC → `herg`, SEM_step/const → `sem_step`/`sem_const`,
 QHTH_step/const → `ldak_step`/`ldak_const`, BIGFAM_v1/v2 → `bigfam_v1`/`bigfam`),

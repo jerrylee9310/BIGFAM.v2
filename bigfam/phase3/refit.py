@@ -1,11 +1,11 @@
-"""Fixed-w_S refit: (rho_hat, Sigma_hat, w_S) -> (V_G, V_S) and their conditional SE.
+"""Fixed-w_C refit: (rho_hat, Sigma_hat, w_C) -> (V_A, V_C) and their conditional SE.
 
-With w_S held fixed the model is linear in (V_G, V_S):
+With w_C held fixed the model is linear in (V_A, V_C):
 
-    rho = X(w_S) [V_G, V_S]^T,   beta = NNLS( X^T Sigma^-1 X, X^T Sigma^-1 rho )
+    rho = X(w_C) [V_A, V_C]^T,   beta = NNLS( X^T Sigma^-1 X, X^T Sigma^-1 rho )
 
 so the conditional SE is sqrt(diag(A^-1)) with A = X^T Sigma^-1 X. A relative
-ridge (RIDGE_REFIT * tr A) keeps A invertible at w_S = 0.5, where the two
+ridge (RIDGE_REFIT * tr A) keeps A invertible at w_C = 0.5, where the two
 columns of X become proportional; elsewhere it is negligible.
 """
 from __future__ import annotations
@@ -33,7 +33,7 @@ def refit_batch(w_vec, rho, Sigmas):
     return beta, se
 
 
-def refit_fixed_ws(rho_hat, Sigma_hat, w_s):
-    """Single family. rho_hat: (3,), Sigma_hat: (3, 3), w_s: float -> beta, se each (2,)."""
-    beta, se = refit_batch(np.array([float(w_s)]), rho_hat[None], Sigma_hat[None])
+def refit_fixed_wc(rho_hat, Sigma_hat, w_c):
+    """Single family. rho_hat: (3,), Sigma_hat: (3, 3), w_c: float -> beta, se each (2,)."""
+    beta, se = refit_batch(np.array([float(w_c)]), rho_hat[None], Sigma_hat[None])
     return beta[0], se[0]

@@ -20,7 +20,7 @@ def _make_calib():
 
 def test_round_trip(tmp_path):
     calib = _make_calib()
-    save_artifacts(calib, tmp_path)                       # only ws_calibration.json
+    save_artifacts(calib, tmp_path)                       # only wc_calibration.json
     calib2 = load_artifacts(tmp_path)
 
     assert calib2.feature_order == list(FEAT_ALL)

@@ -16,7 +16,7 @@ Also prints supplementary blocks [S-A]..[S-F] (SE control, SE heterogeneity,
 ratio scale, VIF, older normalisations, window sensitivity).
 
 Supplementary Data 1 column names are renamed to the internal ones on load
-(V_A -> V_G, V_C -> V_S, w_C -> w_s_cal, h2_<Method> -> <method>_h2).
+(V_A -> V_A, V_C -> V_C, w_C -> w_c_cal, h2_<Method> -> <method>_h2).
 """
 from __future__ import annotations
 from pathlib import Path
@@ -46,19 +46,19 @@ NBOOT, PBOOT, SEED = 10_000, 2_000, 20260804
 WINDOW = 100                   # sliding window in a; the ends keep the first/last 100 traits
 TOP = 3.0                      # y limit in a; traits above it are reported on stdout
 THIRDS = ["lower", "middle", "upper"]
-COV = ["ident", "V_S", "V_G"]                # all three come from one BIGFAM.v2 fit
+COV = ["ident", "V_C", "V_A"]                # all three come from one BIGFAM.v2 fit
 GROUPS = ["all", "UKB", "GS"]                # order within each row of b (top to bottom)
 GMARK = {"all": "o", "UKB": "s", "GS": "^"}          # cohort = marker shape
 GDY = {"all": 0.19, "UKB": 0.0, "GS": -0.19}         # vertical offset within a row
 GALPHA = {"all": 1.0, "UKB": 0.55, "GS": 0.55}       # all-traits solid, cohorts faded
 IDENT = r"$|\hat w_C - 0.5|$"
-COV_LAB = {"ident": IDENT, "V_S": r"$\hat V_C$", "V_G": r"$\hat V_A$"}
+COV_LAB = {"ident": IDENT, "V_C": r"$\hat V_C$", "V_A": r"$\hat V_A$"}
 SDFIX = r"$\mathrm{SD}_{\mathrm{fix}}$"
 
 # Supplementary Data 1 column -> the analysis_set.tsv name the code below uses
 SD1_METHOD = {"falconer": "Falconer", "herg": "HE_PCGC", "sem_step": "SEM_step",
               "sem_const": "SEM_const", "ldak_step": "QHTH_step", "ldak_const": "QHTH_const"}
-RENAME = {"trait_id": "trait", "V_A": "V_G", "V_C": "V_S", "w_C": "w_s_cal",
+RENAME = {"trait_id": "trait", "V_A": "V_A", "V_C": "V_C", "w_C": "w_c_cal",
           **{f"h2_{v}": f"{k}_h2" for k, v in SD1_METHOD.items()},
           **{f"se_{v}": f"{k}_se" for k, v in SD1_METHOD.items()}}
 
@@ -92,12 +92,12 @@ def load():
     split in b and the stratification in figS4.
     """
     d = load_sd1()
-    d = d[["dataset", "trait", "V_G", "V_S", "w_s_cal", "sig_bigfam"] + H2 + SE]
+    d = d[["dataset", "trait", "V_A", "V_C", "w_c_cal", "sig_bigfam"] + H2 + SE]
     n_raw = len(d)
     d = d.dropna().reset_index(drop=True)
     d["sd"] = d[H2].std(axis=1, ddof=1)
     d["mse"] = d[SE].mean(axis=1)
-    d["ident"] = (d.w_s_cal - 0.5).abs()
+    d["ident"] = (d.w_c_cal - 0.5).abs()
     return d, n_raw
 
 
@@ -203,8 +203,8 @@ def panel_coef(ax, stats, ns):
     GS: color = driver, marker = cohort.
     """
     rows = [("ident", "separability", C["decay"]),
-            ("V_S", r"$\hat V_C$", INK),
-            ("V_G", r"$\hat V_A$", FAINT)]
+            ("V_C", r"$\hat V_C$", INK),
+            ("V_A", r"$\hat V_A$", FAINT)]
     ax.plot([0, 0], [-0.35, 2.36], color="0.8", lw=LW_REF, zorder=1)
     for y, (k, lab, col) in zip([2, 1, 0], rows):
         for g in GROUPS:
@@ -239,12 +239,12 @@ def main():
     n = len(d)
     sd, mse, t = d.sd.to_numpy(), d.mse.to_numpy(), d.ident.to_numpy()
     rel = sd / mse                                   # disagreement in units of its own SE
-    vs, vg = d.V_S.to_numpy(), d.V_G.to_numpy()
+    vc, va = d.V_C.to_numpy(), d.V_A.to_numpy()
     tt = np.asarray(pd.qcut(t, 3, labels=False))
-    vt = np.asarray(pd.qcut(vs, 3, labels=False))
+    vt = np.asarray(pd.qcut(vc, 3, labels=False))
     cuts = np.percentile(t, [100 / 3, 200 / 3])
     asm, est, frac = split(d)
-    V = {"ident": t, "V_S": vs, "V_G": vg}
+    V = {"ident": t, "V_C": vc, "V_A": va}
     rng = np.random.default_rng(SEED)
 
     fig = plt.figure(figsize=(W2, 2.7))
@@ -289,7 +289,7 @@ def main():
     for nm, v in [("assumption", asm), ("framework ", est)]:
         print(f"  {nm} (df 5)  raw " + " ".join(f"{np.median(v[tt == k]):.3f}" for k in range(3))
               + "   / mean SE " + " ".join(f"{np.median((v / mse)[tt == k]):.2f}" for k in range(3))
-              + f"   rho ident {spearmanr(v, t)[0]:+.3f}  V_S {spearmanr(v, vs)[0]:+.3f}")
+              + f"   rho ident {spearmanr(v, t)[0]:+.3f}  V_C {spearmanr(v, vc)[0]:+.3f}")
     print(f"  assumption share of variance: median {np.median(frac):.3f}  "
           f"IQR {np.percentile(frac, 25):.3f}-{np.percentile(frac, 75):.3f}"
           f"   assumption > framework in {(asm > est).mean():.0%} of traits")
@@ -312,10 +312,10 @@ def main():
         for g in ("UKB", "GS"):
             _, a, c = stats[g][k]
             print(f"    {g:3s} (n={ns[g]:3d})        adjusted {a:+.3f} [{c[0]:+.3f},{c[1]:+.3f}]")
-    print(f"  V_G = 0 traits {(vg == 0).sum()}/{n}   SD_fix ~ mean SE {spearmanr(sd, mse)[0]:+.3f}"
-          f"   V_G ~ mean SE {spearmanr(vg, mse)[0]:+.3f}   mean SE ~ V_S "
-          f"{spearmanr(mse, vs)[0]:+.3f}   V_G ~ V_S {spearmanr(vg, vs)[0]:+.3f}")
-    # [S-A] drop mean SE from the controls -- how much of V_G vanishing depends on it
+    print(f"  V_A = 0 traits {(va == 0).sum()}/{n}   SD_fix ~ mean SE {spearmanr(sd, mse)[0]:+.3f}"
+          f"   V_A ~ mean SE {spearmanr(va, mse)[0]:+.3f}   mean SE ~ V_C "
+          f"{spearmanr(mse, vc)[0]:+.3f}   V_A ~ V_C {spearmanr(va, vc)[0]:+.3f}")
+    # [S-A] drop mean SE from the controls -- how much of V_A vanishing depends on it
     print("[S-A] adjusted for the other two covariates only (mean SE NOT controlled)")
     for k in COV:
         rest = [V[o] for o in COV if o != k]
@@ -325,16 +325,16 @@ def main():
     med_se = {m: np.median(d[m + "_se"]) for m in SIX}
     print("[S-B] median SE by method  " + "  ".join(f"{m} {v:.4f}" for m, v in med_se.items())
           + f"   max/min ratio {max(med_se.values()) / min(med_se.values()):.1f}x")
-    # [S-C] on a ratio scale mean SE absorbs the V_S effect -- why b stays raw
+    # [S-C] on a ratio scale mean SE absorbs the V_C effect -- why b stays raw
     print("[S-C] scale sensitivity — within-stratum rho, raw SD_fix vs ratio")
     for nm, y in [("raw SD_fix   ", sd), ("SD_fix/meanSE", rel)]:
-        print(f"  {nm}  within ident third ~ V_S   "
-              + " ".join(f"{spearmanr(vs[tt == k], y[tt == k])[0]:+.3f}" for k in range(3))
-              + "   within V_S third ~ ident "
+        print(f"  {nm}  within ident third ~ V_C   "
+              + " ".join(f"{spearmanr(vc[tt == k], y[tt == k])[0]:+.3f}" for k in range(3))
+              + "   within V_C third ~ ident "
               + " ".join(f"{spearmanr(t[vt == k], y[vt == k])[0]:+.3f}" for k in range(3)))
-    print("  3x3 median raw SD_fix  (rows V_S third high->low, cols ident third)")
+    print("  3x3 median raw SD_fix  (rows V_C third high->low, cols ident third)")
     for r in [2, 1, 0]:
-        print(f"    V_S {THIRDS[r]:6s} " + " ".join(
+        print(f"    V_C {THIRDS[r]:6s} " + " ".join(
             f"{np.median(sd[(vt == r) & (tt == c)]):.4f} (n={((vt == r) & (tt == c)).sum():3d})"
             for c in range(3)))
     print(f"[S-D] max VIF on ranks (3 covariates): {max_vif([V[k] for k in COV]):.2f}")
@@ -354,8 +354,8 @@ def main():
               f"{cross_one(xs, tot):8.3f}  {np.interp(0.30, xa, a):7.3f}  "
               f"{np.interp(0.30, xe, e):7.3f}")
     print("[sensitivity] same filter applied to all three rows")
-    for tag, m in [("all", np.ones(n, bool)), ("V_G>0", vg > 0),
-                   ("V_G significant", (d.sig_bigfam == 1).to_numpy())]:
+    for tag, m in [("all", np.ones(n, bool)), ("V_A>0", va > 0),
+                   ("V_A significant", (d.sig_bigfam == 1).to_numpy())]:
         print(f"  {tag:16s} n={m.sum():3d}  "
               + "  ".join(f"{k} {spearmanr(V[k][m], sd[m])[0]:+.3f}" for k in COV))
 

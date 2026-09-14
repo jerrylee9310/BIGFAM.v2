@@ -1,8 +1,8 @@
 """_sd1.py — Supplementary Data 1 loader shared by compute.py and the three plot scripts.
 
 Reads supple_data/Supplementary_Data_1_trait_estimates.csv and renames its columns back
-to the internal names the original figure scripts use (V_A -> V_G, V_C -> V_S,
-w_C -> w_s_cal, h2_<Method> -> <method>_h2, ...), so everything after load_sd1() in those
+to the internal names the original figure scripts use (V_A -> V_A, V_C -> V_C,
+w_C -> w_c_cal, h2_<Method> -> <method>_h2, ...), so everything after load_sd1() in those
 scripts is the paper's code unchanged.
 """
 from pathlib import Path
@@ -17,9 +17,9 @@ SD1 = HERE.parents[1] / "supple_data" / "Supplementary_Data_1_trait_estimates.cs
 SD1_METHOD = {"falconer": "Falconer", "herg": "HE_PCGC", "sem_step": "SEM_step",
               "sem_const": "SEM_const", "ldak_step": "QHTH_step", "ldak_const": "QHTH_const",
               "bigfam_v1": "BIGFAM_v1", "bigfam": "BIGFAM_v2"}
-RENAME = {"trait_type": "kind", "V_A": "V_G", "V_C": "V_S", "w_C": "w_s_cal",
-          "w_C_ci_lo": "wci_lo", "w_C_ci_hi": "wci_hi", "se_V_A": "se_VG_cond",
-          "se_V_C": "se_VS_cond", "z_V_A": "z_VG", "z_V_C": "z_VS",
+RENAME = {"trait_type": "kind", "V_A": "V_A", "V_C": "V_C", "w_C": "w_c_cal",
+          "w_C_ci_lo": "wci_lo", "w_C_ci_hi": "wci_hi", "se_V_A": "se_VA_cond",
+          "se_V_C": "se_VC_cond", "z_V_A": "z_VA", "z_V_C": "z_VC",
           "se_snp_h2": "snp_se", "snp_h2_confidence": "confidence",
           **{f"h2_{v}": f"{k}_h2" for k, v in SD1_METHOD.items()},
           **{f"se_{v}": f"{k}_se" for k, v in SD1_METHOD.items()}}

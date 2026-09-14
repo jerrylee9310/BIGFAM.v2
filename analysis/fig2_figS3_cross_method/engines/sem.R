@@ -66,8 +66,8 @@ for (i in seq_len(nrow(ev))) {
   Nd  <- c(ev$Nd_1[i],  ev$Nd_2[i],  ev$Nd_3[i])
   for (cn in names(CONDS)) {
     r <- fit_ace(s11, s12, s22, Nd, CONDS[[cn]])
-    res <- data.frame(condition = cn, V_G = r[1], V_S = r[2], status = r[3])
-    if (want_se) { res$se_VG <- r[4]; res$se_VS <- r[5] }   # columns omitted when SEs are off
+    res <- data.frame(condition = cn, V_A = r[1], V_C = r[2], status = r[3])
+    if (want_se) { res$se_VA <- r[4]; res$se_VC <- r[5] }   # columns omitted when SEs are off
     out[[length(out) + 1]] <- cbind(ev[i, idcols, drop = FALSE], res, row.names = NULL)
   }
 }

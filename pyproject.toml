@@ -39,4 +39,4 @@ analysis = ["pyarrow", "matplotlib", "seaborn"]   # analysis/ figure replication
 packages = ["bigfam"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"bigfam/artifacts/ws_calibration.json" = "bigfam/artifacts/ws_calibration.json"
+"bigfam/artifacts/wc_calibration.json" = "bigfam/artifacts/wc_calibration.json"

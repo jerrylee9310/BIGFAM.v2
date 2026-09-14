@@ -74,13 +74,13 @@ Python methods run and it's a few minutes for 1,000 reps.
 
 1. `run.py --check` (one large-N replicate) passes its built-in asserts:
    `rho_hat` within 0.02 of truth, BIGFAM.v2 and BIGFAM.v1 both recover
-   `V_G` near 0.5 on clean data, Falconer is inflated above BIGFAM (absorbs
-   `V_S`), and PCGC matches Tet-Falconer under no covariate adjustment.
+   `V_A` near 0.5 on clean data, Falconer is inflated above BIGFAM (absorbs
+   `V_C`), and PCGC matches Tet-Falconer under no covariate adjustment.
 2. `run.py --reps 10` was run and merged against the frozen reference
    (`pjt-bf/analysis/simulation/results/raw.parquet`, rows with `rep < 10`)
-   on `(scale, w_s, rep, method, condition)`. Seeds are deterministic per
-   `(scale, w_s, rep)`, so this is an exact parity check, not a statistical
-   comparison. Max `|V_G_hat diff|` per method:
+   on `(scale, w_c, rep, method, condition)`. Seeds are deterministic per
+   `(scale, w_c, rep)`, so this is an exact parity check, not a statistical
+   comparison. Max `|V_A_hat diff|` per method:
 
    | method | max abs diff |
    |---|---|
@@ -96,9 +96,9 @@ Python methods run and it's a few minutes for 1,000 reps.
 3. **`bigfam_v1` caveat**: `methods/bigfam_v1.py`'s `make()` holds *one* RNG
    that is shared across the *entire* grid sweep inside a single `run()`
    call (faithful to the original pipeline — not something introduced here).
-   So a `(scale, w_s)` block's `bigfam_v1` draws depend on how many prior
+   So a `(scale, w_c)` block's `bigfam_v1` draws depend on how many prior
    calls happened first, which depends on `--reps`. Checked block-by-block:
-   the very first grid cell (`continuous`, `w_s=0.2`) matches the reference
+   the very first grid cell (`continuous`, `w_c=0.2`) matches the reference
    to 1e-16 regardless of `--reps` (nothing precedes it); every later cell
    only matches bit-for-bit when run with the *same* `--reps` as the
    reference (1000). This is expected, not a bug, and affects only

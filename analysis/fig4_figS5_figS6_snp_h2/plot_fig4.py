@@ -69,7 +69,7 @@ def ladder_r(ax, v):
 def _tab_ab(d):
     """OLS intercept and slope per threshold and method (BIGFAM.v1: continuous only)."""
     c = d.copy()
-    c["dist"] = (c.w_s_cal - 0.5).abs()
+    c["dist"] = (c.w_c_cal - 0.5).abs()
     rows = []
     for t in CUTS:
         s = c[c.dist >= t]

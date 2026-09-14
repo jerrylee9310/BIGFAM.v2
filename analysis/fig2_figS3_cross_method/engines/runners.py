@@ -52,8 +52,8 @@ def run_sem(records, out_csv, se=False):
     """records: [{<id cols> + c{11,12,22}_d + Nd_d}, ...] -> sem.R's raw DataFrame.
 
     The id columns (anything besides c**_d/Nd_d) pass straight through -- this
-    driver uses scale/w_s/rep.
-    se=True turns on sem.R's Hessian/SE and adds se_VG/se_VS columns (not used
+    driver uses scale/w_c/rep.
+    se=True turns on sem.R's Hessian/SE and adds se_VA/se_VC columns (not used
     by this simulation, which defaults to se=False)."""
     if shutil.which("Rscript") is None or not records:
         return pd.DataFrame()

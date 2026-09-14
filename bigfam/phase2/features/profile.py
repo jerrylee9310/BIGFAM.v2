@@ -1,6 +1,6 @@
 """Step 1b: NNLS profile-out features (7).
 
-For each w on WS_PROFILE: NNLS GLS fit beta>=0 at X(w), loss ell = e^T Sigma^-1 e.
+For each w on WC_PROFILE: NNLS GLS fit beta>=0 at X(w), loss ell = e^T Sigma^-1 e.
 w_map = argmin ell. CI width via {w: ell <= ell_min + 3.84}. Softmax weights
 p ~ exp(-0.5(ell - ell_min)) give middle_mass, w_mean, w_median, effective_count.
 
@@ -10,17 +10,17 @@ from __future__ import annotations
 
 import numpy as np
 
-from ...config import WS_PROFILE, CHI2_95
+from ...config import WC_PROFILE, CHI2_95
 from ...core.design import design_matrix
 from ...core.nnls import nnls_2d_batch
 
 
 def profile_feats_batch(rho_all, Sigma_invs):
     """rho_all: (N, 3), Sigma_invs: (N, 3, 3) -> (N, 7)."""
-    N, K = len(rho_all), len(WS_PROFILE)
+    N, K = len(rho_all), len(WC_PROFILE)
     ell = np.zeros((N, K))
-    for k, ws in enumerate(WS_PROFILE):
-        X_k = design_matrix(ws)
+    for k, wc in enumerate(WC_PROFILE):
+        X_k = design_matrix(wc)
         ATA = np.einsum("ia,nij,jb->nab", X_k, Sigma_invs, X_k)
         ATz = np.einsum("ia,nij,nj->na", X_k, Sigma_invs, rho_all)
         beta = nnls_2d_batch(ATA, ATz)
@@ -28,22 +28,22 @@ def profile_feats_batch(rho_all, Sigma_invs):
         ell[:, k] = np.einsum("ni,nij,nj->n", e, Sigma_invs, e)
 
     ell_min = ell.min(1, keepdims=True)
-    w_map = WS_PROFILE[ell.argmin(1)]
+    w_map = WC_PROFILE[ell.argmin(1)]
 
     in_ci = ell <= ell_min + CHI2_95
     first = np.argmax(in_ci, 1)
     last = (K - 1) - np.argmax(in_ci[:, ::-1], 1)
-    profile_width = WS_PROFILE[last] - WS_PROFILE[first]
+    profile_width = WC_PROFILE[last] - WC_PROFILE[first]
 
     p = np.exp(-0.5 * (ell - ell_min))
     p /= p.sum(1, keepdims=True)
-    mid = (WS_PROFILE >= 0.35) & (WS_PROFILE <= 0.65)
+    mid = (WC_PROFILE >= 0.35) & (WC_PROFILE <= 0.65)
     middle_mass = p[:, mid].sum(1)
 
-    w_mean = p @ WS_PROFILE
+    w_mean = p @ WC_PROFILE
     cdf = np.cumsum(p, axis=1)
     med_idx = np.argmax(cdf >= 0.5, axis=1)
-    w_median = WS_PROFILE[med_idx]
+    w_median = WC_PROFILE[med_idx]
     entropy = -np.sum(p * np.log(p + 1e-12), axis=1)
     eff_count = np.exp(entropy)
     map_mean_gap = np.abs(w_map - w_mean)

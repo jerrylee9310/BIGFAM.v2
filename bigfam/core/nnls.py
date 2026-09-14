@@ -1,7 +1,7 @@
 """Proper 2-variable NNLS via KKT active-set.
 
 Shared by Phase 2 profile loss and Phase 3 refit: Phase 3's decomposition at
-w_S = w_hat must equal Phase 2's profile curve read at the same point, which
+w_C = w_hat must equal Phase 2's profile curve read at the same point, which
 holds by construction because both call the *same* solver. Inputs are in
 normal-equation form (ATA, ATz) so batch and single-family share one kernel.
 """

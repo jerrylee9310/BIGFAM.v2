@@ -14,7 +14,7 @@
      color: retention r = (w_hat-0.5)/(w_true-0.5)  (1 = signal fully preserved,
         0 = collapsed to 0.5)
 
-  Column names (w_S_true / V_S / w_hat) match generate.py's CSV schema; only the
+  Column names (w_C_true / V_C / w_hat) match generate.py's CSV schema; only the
   rendered axis labels are unified to w_C/V_C.
 
 Input: figS1.csv (generate.py). Output: figS1.png.
@@ -80,7 +80,7 @@ def main():
             f"{CSV} not found (it is not committed -- 19MB). Run "
             "`python analysis/figS1_phase2_calibration/generate.py` first (~5 min).")
     d = pd.read_csv(CSV)
-    wt, wh = d.w_S_true.values, d.w_hat.values
+    wt, wh = d.w_C_true.values, d.w_hat.values
 
     fig, ax = plt.subplots(1, 2, figsize=(W2, 3.0))
 
@@ -94,7 +94,7 @@ def main():
     sns.despine(ax=ax[0], trim=True, offset=5)
 
     # b: retention "safe-zone" map over the two separability drivers
-    signal = d.V_S.values * (wt - 0.5) ** 2        # x: all-rho w-signal
+    signal = d.V_C.values * (wt - 0.5) ** 2        # x: all-rho w-signal
     noise = d.sigma_max.values                      # y: measurement sd
     r = (wh - 0.5) / (wt - 0.5)                      # retention per replicate
     xe = np.logspace(np.log10(1e-4), np.log10(2.5e-1), 15)   # 14 signal bins (coarse)

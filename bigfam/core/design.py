@@ -1,10 +1,10 @@
-"""Design matrix X(w_S) for the fixed-w_S decomposition (D = 3, fixed).
+"""Design matrix X(w_C) for the fixed-w_C decomposition (D = 3, fixed).
 
-    rho_d = 0.5^d * V_G + w_S^{d-1} * V_S,  d = 1, 2, 3
+    rho_d = 0.5^d * V_A + w_C^{d-1} * V_C,  d = 1, 2, 3
 
-        X(w_S) = [[0.5,   1   ],
-                  [0.25,  w_S ],
-                  [0.125, w_S^2]]
+        X(w_C) = [[0.5,   1   ],
+                  [0.25,  w_C ],
+                  [0.125, w_C^2]]
 """
 from __future__ import annotations
 
@@ -25,6 +25,6 @@ def design_matrix_batch(w_vec: np.ndarray) -> np.ndarray:
     return X
 
 
-def design_matrix(w_s: float) -> np.ndarray:
-    """Single w_S -> X: (3, 2)."""
-    return design_matrix_batch(np.array([float(w_s)]))[0]
+def design_matrix(w_c: float) -> np.ndarray:
+    """Single w_C -> X: (3, 2)."""
+    return design_matrix_batch(np.array([float(w_c)]))[0]

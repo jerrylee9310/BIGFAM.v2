@@ -25,28 +25,28 @@ class RhoEstimate:
 
 
 @dataclass(frozen=True)
-class WsEstimate:
-    """Phase 2 output: the calibrated w_S point estimate (features -> ridge)."""
-    w_s_cal: float           # calibrated environmental decay rate
+class WcEstimate:
+    """Phase 2 output: the calibrated w_C point estimate (features -> ridge)."""
+    w_c_cal: float           # calibrated environmental decay rate
 
 
 @dataclass(frozen=True)
 class Decomposition:
     """Phase 3 output = final result.
 
-    (V_G, V_S) refit at the fixed w = w_s_cal, their conditional SE and z, and
-    w_s_cal with its profile-likelihood 95% CI. Whether the decomposition is
-    identified is read off that CI: w_S = 0.5 makes X(w) rank 1, so a CI covering
-    0.5 means (V_G, V_S) are not separable. No trust label is emitted -- the CI
+    (V_A, V_C) refit at the fixed w = w_c_cal, their conditional SE and z, and
+    w_c_cal with its profile-likelihood 95% CI. Whether the decomposition is
+    identified is read off that CI: w_C = 0.5 makes X(w) rank 1, so a CI covering
+    0.5 means (V_A, V_C) are not separable. No trust label is emitted -- the CI
     is the report, and any cut on it belongs to the analysis, not the estimator.
     """
-    V_G: float
-    V_S: float
-    se_VG_cond: float        # conditional SE at fixed w_s_cal = sqrt(diag A^-1)
-    se_VS_cond: float
-    z_VG: float              # V_G / se_VG_cond
-    z_VS: float              # V_S / se_VS_cond
-    w_s_cal: float           # decomposition point (clipped)
+    V_A: float
+    V_C: float
+    se_VA_cond: float        # conditional SE at fixed w_c_cal = sqrt(diag A^-1)
+    se_VC_cond: float
+    z_VA: float              # V_A / se_VA_cond
+    z_VC: float              # V_C / se_VC_cond
+    w_c_cal: float           # decomposition point (clipped)
     wci_lo: float            # profile-likelihood 95% w-CI
     wci_hi: float
 
@@ -54,9 +54,9 @@ class Decomposition:
 # ── learned-coefficient containers (artifacts) ───────────────────────────────
 @dataclass(frozen=True)
 class CalibrationCoef:
-    """Trained Phase 2 coefficients, loaded from bigfam/artifacts/ws_calibration.json.
+    """Trained Phase 2 coefficients, loaded from bigfam/artifacts/wc_calibration.json.
 
-    w_S_cal = clip(ridge(standardized x)), x being the 24 features in
+    w_C_cal = clip(ridge(standardized x)), x being the 24 features in
     feature_order. Written by bigfam.phase2.train, read by bigfam.io.load_artifacts.
     """
     feature_order: List[str]     # = FEAT_ALL (single source of truth)

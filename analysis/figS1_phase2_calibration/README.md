@@ -23,12 +23,12 @@ data of any kind is involved.
 ## Files
 
 - `generate.py` — forward-simulates the shipped Phase 2 estimator over the
-  paper's Supplement S2.4 prior (`w_C ~ U(0.01,0.99)`, `(V_G,V_S) ~
+  paper's Supplement S2.4 prior (`w_C ~ U(0.01,0.99)`, `(V_A,V_C) ~
   Dirichlet(1,1,1)`, per-DOR noise `sigma_d ~ U(0.001,0.10)` with a free
   positive correlation, rejection-sampled to PSD). For each of 200,000 draws:
   builds `rho_true`, samples one noisy `rho_hat`, computes the 24 Phase 2
   features, and calls the *shipped* ridge calibration
-  (`bigfam/artifacts/ws_calibration.json`, loaded via
+  (`bigfam/artifacts/wc_calibration.json`, loaded via
   `bigfam.io.load.load_artifacts()`) to get `w_hat_C`. Writes `figS1.csv`.
 - `plot.py` — reads `figS1.csv`, produces `figS1.png`.
 - `_style.py` — shared plotting style (fonts, colors, NG-journal figure sizing).
@@ -59,9 +59,9 @@ figure:
 
 | column | max abs diff |
 |---|---|
-| `w_S_true` | 3.3e-16 |
-| `V_G` | 0.0 |
-| `V_S` | 0.0 |
+| `w_C_true` | 3.3e-16 |
+| `V_A` | 0.0 |
+| `V_C` | 0.0 |
 | `sigma_max` | 1.1e-16 |
 | `w_hat` | 8.1e-6 |
 

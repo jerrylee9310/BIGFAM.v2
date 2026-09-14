@@ -1,10 +1,10 @@
 """Simulated data for offline Phase 2 training (not used at inference time).
 
-    rho_true_d = 0.5^d * V_G + w_S^{d-1} * V_S,   d = 1, 2, 3
+    rho_true_d = 0.5^d * V_A + w_C^{d-1} * V_C,   d = 1, 2, 3
     rho_hat    ~ N(rho_true, Sigma)
 
 The shipped calibration is trained on a deliberately wide draw so it stays
-usable across traits: w_S ~ U(0.01, 0.99), (V_G, V_S) ~ Dirichlet(1, 1, 1),
+usable across traits: w_C ~ U(0.01, 0.99), (V_A, V_C) ~ Dirichlet(1, 1, 1),
 per-DOR sd ~ U(0.001, SIGMA_HI), and Sigma = diag(sd) R diag(sd) with R a free
 positive correlation matrix (resampled until PSD).
 """
@@ -24,16 +24,16 @@ def sample_rho_hats(rho_true, Sigmas, rng):
     return rho_true + np.einsum("nij,nj->ni", L, z)
 
 
-def rho_true_batch(V_G, V_S, w_S):
-    """Noise-free similarity curve. V_G, V_S, w_S each (N,) -> (N, 3).
+def rho_true_batch(V_A, V_C, w_C):
+    """Noise-free similarity curve. V_A, V_C, w_C each (N,) -> (N, 3).
 
-    rho_d = 0.5^d * V_G + w_S^(d-1) * V_S,  d = 1, 2, 3.
+    rho_d = 0.5^d * V_A + w_C^(d-1) * V_C,  d = 1, 2, 3.
     """
-    V_G = np.asarray(V_G, float)
-    V_S = np.asarray(V_S, float)
-    w_S = np.asarray(w_S, float)
+    V_A = np.asarray(V_A, float)
+    V_C = np.asarray(V_C, float)
+    w_C = np.asarray(w_C, float)
     d = np.array([1, 2, 3])
-    return (0.5 ** d)[None, :] * V_G[:, None] + (w_S[:, None] ** (d - 1)[None, :]) * V_S[:, None]
+    return (0.5 ** d)[None, :] * V_A[:, None] + (w_C[:, None] ** (d - 1)[None, :]) * V_C[:, None]
 
 
 # ── scenario draw ────────────────────────────────────────────────────────────
@@ -59,37 +59,37 @@ def _free_corr(rng, N):
 
 
 def sample_scenarios(rng, N):
-    """Draw N scenarios -> (w_S, V_G, V_S, Sigmas).
+    """Draw N scenarios -> (w_C, V_A, V_C, Sigmas).
 
     The draw ORDER (w, Dirichlet fold, correlation, sd) fixes what a given seed
     produces -- reordering it changes the shipped artifact.
     """
     w = rng.uniform(0.01, 0.99, N)
 
-    u = rng.uniform(0.0, 1.0, N)                        # Dirichlet(1,1,1) on (V_G,V_S)
+    u = rng.uniform(0.0, 1.0, N)                        # Dirichlet(1,1,1) on (V_A,V_C)
     v = rng.uniform(0.0, 1.0, N)
     m = (u + v) > 1.0
     u[m], v[m] = 1.0 - u[m], 1.0 - v[m]
-    V_G, V_S = u, v
+    V_A, V_C = u, v
 
     R = _free_corr(rng, N)
     sd = rng.uniform(0.001, SIGMA_HI, (N, 3))           # unordered
     Sigmas = R * sd[:, :, None] * sd[:, None, :]
-    return w, V_G, V_S, Sigmas
+    return w, V_A, V_C, Sigmas
 
 
 def generate_training_frame(seed=SEED, n=N_SIM) -> pd.DataFrame:
-    """The training frame ws_calibration.json is fit on.
+    """The training frame wc_calibration.json is fit on.
 
-    Columns: the 24 features, plus w_S_true (the ridge target) and V_G / V_S.
+    Columns: the 24 features, plus w_C_true (the ridge target) and V_A / V_C.
     """
     rng = np.random.default_rng(seed)
-    w, V_G, V_S, Sigmas = sample_scenarios(rng, n)
-    rho_true = rho_true_batch(V_G, V_S, w)
+    w, V_A, V_C, Sigmas = sample_scenarios(rng, n)
+    rho_true = rho_true_batch(V_A, V_C, w)
     rho_hat = sample_rho_hats(rho_true, Sigmas, rng)
     feats = compute_feature_dict(rho_hat, Sigmas)
 
     df = pd.DataFrame({name: feats[name] for name in FEAT_ALL})
-    df["w_S_true"] = w
-    df["V_G"], df["V_S"] = V_G, V_S
+    df["w_C_true"] = w
+    df["V_A"], df["V_C"] = V_A, V_C
     return df

@@ -2,7 +2,7 @@
 
 Relatives file col5=relatedness(w_G^d), col6=environmental similarity(c_ij).
 continuous uses --quant-her (h2O), binary uses --tetra-her --prevalence K (h2L).
-Output <out>.mle: 'Genetic' row=V_G, 'Environmental' row=V_S. REML constrains
+Output <out>.mle: 'Genetic' row=V_A, 'Environmental' row=V_C. REML constrains
 >=0, so estimates floor at the boundary.
 
 External dependency: the LDAK binary is NOT bundled here (redistribution is
@@ -56,18 +56,18 @@ def write_covar(cov, cov_cols, path):
 
 def _parse_mle(path):
     """`.mle` is a 'Component Heritability SE' table -> t[1]=point estimate, t[2]=REML asymptotic SE."""
-    vg = vs = se_vg = se_vs = np.nan; conv = False
+    va = vc = se_va = se_vc = np.nan; conv = False
     for line in path.read_text().splitlines():
         t = line.split()
         if not t:
             continue
         if t[0] == "Genetic":
-            vg = float(t[1]); se_vg = float(t[2]) if len(t) > 2 else np.nan
+            va = float(t[1]); se_va = float(t[2]) if len(t) > 2 else np.nan
         elif t[0] == "Environmental":
-            vs = float(t[1]); se_vs = float(t[2]) if len(t) > 2 else np.nan
+            vc = float(t[1]); se_vc = float(t[2]) if len(t) > 2 else np.nan
         elif t[0] == "Converged":
             conv = t[1] == "YES"
-    return vg, vs, se_vg, se_vs, conv
+    return va, vc, se_va, se_vc, conv
 
 
 def run_one(pairs, pheno, scale, cond, K=None, cov=None, cov_cols=None, workdir=None):
@@ -76,7 +76,7 @@ def run_one(pairs, pheno, scale, cond, K=None, cov=None, cov_cols=None, workdir=
     continuous). cov=None -> no --covar (matches this simulation, which has
     no covariates)."""
     if not _LDAK.exists():
-        return {"V_G": np.nan, "V_S": np.nan, "se_VG": np.nan, "se_VS": np.nan, "note": "no-ldak"}
+        return {"V_A": np.nan, "V_C": np.nan, "se_VA": np.nan, "se_VC": np.nan, "note": "no-ldak"}
     tmp = workdir or Path(tempfile.mkdtemp())
     tmp.mkdir(parents=True, exist_ok=True)
     try:
@@ -93,11 +93,11 @@ def run_one(pairs, pheno, scale, cond, K=None, cov=None, cov_cols=None, workdir=
             cmd += ["--covar", str(cv)]
         subprocess.run(cmd, capture_output=True, text=True, cwd=tmp)
         mle = tmp / "qh.mle"
-        vg, vs, se_vg, se_vs, conv = (_parse_mle(mle) if mle.exists()
+        va, vc, se_va, se_vc, conv = (_parse_mle(mle) if mle.exists()
                                       else (np.nan, np.nan, np.nan, np.nan, False))
         if cond == "AE":
-            vs = se_vs = np.nan                      # AE has no C -> V_C left empty
-        return {"V_G": vg, "V_S": vs, "se_VG": se_vg, "se_VS": se_vs,
+            vc = se_vc = np.nan                      # AE has no C -> V_C left empty
+        return {"V_A": va, "V_C": vc, "se_VA": se_va, "se_VC": se_vc,
                 "note": "conv" if conv else "NOCONV"}
     finally:
         if workdir is None:
@@ -105,7 +105,7 @@ def run_one(pairs, pheno, scale, cond, K=None, cov=None, cov_cols=None, workdir=
 
 
 def make(cond, K=None):
-    """Per-replicate runner for the sim loop. fn(rho, pairs, pheno, scale)->{V_G,V_S,note}."""
+    """Per-replicate runner for the sim loop. fn(rho, pairs, pheno, scale)->{V_A,V_C,note}."""
     def run(rho, pairs, pheno, scale):
         return run_one(pairs, pheno, scale, cond, K)
     return run

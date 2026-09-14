@@ -185,14 +185,14 @@ def summarise(df):
             dist = (g.w_hat - 0.5).abs() if axis == "est" else (g.w_true - 0.5).abs()
             for t in CUTS:
                 s = g[dist >= t]
-                if len(s) < 50 or s.V_G_true.std() < 1e-9:
+                if len(s) < 50 or s.V_A_true.std() < 1e-9:
                     continue
                 row = dict(design=design, axis=axis, t=t, n=len(s),
-                           bias_bigfam=(s.VA_bigfam - s.V_G_true).mean())
+                           bias_bigfam=(s.VA_bigfam - s.V_A_true).mean())
                 for m in METHODS:
                     v = s[f"VA_{m}"]
-                    row[f"r_{m}"] = v.corr(s.V_G_true)
-                    row[f"rmse_{m}"] = np.sqrt(((v - s.V_G_true) ** 2).mean())
+                    row[f"r_{m}"] = v.corr(s.V_A_true)
+                    row[f"rmse_{m}"] = np.sqrt(((v - s.V_A_true) ** 2).mean())
                 rows.append(row)
     return pd.DataFrame(rows)
 
@@ -224,12 +224,12 @@ def main():
         pairs, pheno = generate_pairs(va, vc, w, SEED_BASE + i)
         cov = pheno[[]]                                     # intercept-only (no covariates)
         rho = bigfam.estimate_rho(pairs, cov, pheno, "continuous", cov_cols=[])
-        ws = bigfam.estimate_ws(rho, calib)
-        dec = bigfam.decompose(rho, ws)
+        wc = bigfam.estimate_wc(rho, calib)
+        dec = bigfam.decompose(rho, wc)
 
         rhos.append(rho.rho_hat); Sigs.append(rho.Sigma_hat)
-        w_hat_list.append(ws.w_s_cal)
-        va_bigfam.append(dec.V_G); vc_bigfam.append(dec.V_S)
+        w_hat_list.append(wc.w_c_cal)
+        va_bigfam.append(dec.V_A); vc_bigfam.append(dec.V_C)
         fal.append(falconer_estimate(rho))
         hee.append(he_estimate(rho, pairs, pheno))
         sem_recs.append(sem_row(i, pairs, pheno, rho.rho_hat, N_D))
@@ -252,12 +252,12 @@ def main():
             est[f"sem_{c}"] = np.full(len(scen), np.nan)
         status0 = float("nan")
     else:
-        piv = sem.pivot(index="trait", columns="condition", values="V_G").reindex(range(len(scen)))
+        piv = sem.pivot(index="trait", columns="condition", values="V_A").reindex(range(len(scen)))
         for c in SEM_CONDS:
             est[f"sem_{c}"] = piv[c].to_numpy()
         status0 = float((sem.status == 0).mean())
 
-    df = pd.DataFrame(meta, columns=["design", "V_G_true", "V_S_true", "w_true"])
+    df = pd.DataFrame(meta, columns=["design", "V_A_true", "V_C_true", "w_true"])
     df["w_hat"] = w_hat_list
     for m, v in est.items():
         df[f"VA_{m}"] = v

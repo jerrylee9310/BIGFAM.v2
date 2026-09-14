@@ -12,10 +12,10 @@ python3 -m venv .venv && .venv/bin/pip install -e .
 
 ```text
 rho_hat = [0.44112972 0.14486396 0.07649728]
-w_S:  true=0.200  est=0.123  CI=[0.010, 0.180]
-V_G:  true=0.500  est=0.513  se=0.032
-V_S:  true=0.200  est=0.184  se=0.018
-(se is conditional on w_S)
+w_C:  true=0.200  est=0.123  CI=[0.010, 0.180]
+V_A:  true=0.500  est=0.513  se=0.032
+V_C:  true=0.200  est=0.184  se=0.018
+(se is conditional on w_C)
 ```
 
 
@@ -55,17 +55,17 @@ from bigfam.io import load_pairs, load_artifacts
 ```python
 # Load data
 pairs, cov, pheno = load_pairs("examples/toy_data", "height", "continuous")
-calib = load_artifacts()                    # the packaged w_S model; load it once
+calib = load_artifacts()                    # the packaged w_C model; load it once
 ```
 
 ```python
 # Run BIGFAM.v2
 rho    = bigfam.estimate_rho(pairs, cov, pheno, "continuous", ["age", "sex"])   # Phase 1
-ws     = bigfam.estimate_ws(rho, calib)                                         # Phase 2
-result = bigfam.decompose(rho, ws)                                              # Phase 3
+wc     = bigfam.estimate_wc(rho, calib)                                         # Phase 2
+result = bigfam.decompose(rho, wc)                                              # Phase 3
 
-print(result.V_G, result.se_VG_cond)          # 0.546 0.068
-print(result.w_s_cal, result.wci_lo, result.wci_hi)
+print(result.V_A, result.se_VA_cond)          # 0.546 0.068
+print(result.w_c_cal, result.wci_lo, result.wci_hi)
 ```
 
 
@@ -75,4 +75,4 @@ print(result.w_s_cal, result.wci_lo, result.wci_hi)
 ## How much data do you need?
 
 Aim for `rho.sigma_hat` (the per-`dor` SE) under about 0.01. How many pairs that
-takes depends on the trait and on where `w_S` sits — closer to 0.5 needs more.
+takes depends on the trait and on where `w_C` sits — closer to 0.5 needs more.

@@ -16,7 +16,7 @@ Left/right panels share the y axis (method). Figure size is NG 2-column
 The full panel (all three w_C, including the degenerate point) is
 plot_figS3.py. This underestimation bias is decomposed in the paper's figS2.
 
-Input: results/raw.parquet (column names are the pipeline's own: w_s, V_G_hat).
+Input: results/raw.parquet (column names are the pipeline's own: w_c, V_A_hat).
 Output: fig2.png.
 """
 from __future__ import annotations
@@ -68,11 +68,11 @@ def main():
     raw = pd.read_parquet(RAW)
     n = len(ROWS)
     fig, axes = plt.subplots(1, 2, figsize=(W2, 4.3), sharey=True, sharex=True)
-    for ax, (ws, title, letter) in zip(axes, COLS):
+    for ax, (wc, title, letter) in zip(axes, COLS):
         ax.axvline(V_A_TRUE, ls=(0, (4, 3)), lw=LW_REF, color="#333333", zorder=1)
         for i, (method, cond, klass, _) in enumerate(ROWS):
             y = n - 1 - i
-            sc = raw[(raw.scale == "continuous") & (raw.w_s == ws) & (raw.method == method) & (raw.condition == cond)]["V_G_hat"]
+            sc = raw[(raw.scale == "continuous") & (raw.w_c == wc) & (raw.method == method) & (raw.condition == cond)]["V_A_hat"]
             if len(sc):
                 pint(ax, y + OFF, sc, C[klass], filled=True)
             if method in NA_BINARY:
@@ -80,7 +80,7 @@ def main():
                         fontsize=6, fontstyle="italic")
                 continue
             mb = "pcgc" if method == "he" else method
-            sb = raw[(raw.scale == "binary") & (raw.w_s == ws) & (raw.method == mb) & (raw.condition == cond)]["V_G_hat"]
+            sb = raw[(raw.scale == "binary") & (raw.w_c == wc) & (raw.method == mb) & (raw.condition == cond)]["V_A_hat"]
             if len(sb):
                 pint(ax, y - OFF, sb, C[klass], filled=False)
         ax.set_title(title, loc="center", pad=6, fontsize=7)     # center-aligned panel title

@@ -1,7 +1,7 @@
 """Individual-level relative-pair generator (continuous + binary).
 
 For each DOR d, draws N_d independent pairs from a bivariate normal:
-    (y1, y2) ~ N(0, [[1, rho_d], [rho_d, 1]]),  rho_d = w_G^d V_G + w_S^{d-1} V_S
+    (y1, y2) ~ N(0, [[1, rho_d], [rho_d, 1]]),  rho_d = w_G^d V_A + w_C^{d-1} V_C
 binary thresholds the same liability at tau = Phi^{-1}(1-K).
 
 Pairs are independent of each other (no within-family structure). Each
@@ -23,7 +23,7 @@ from scipy.stats import norm
 from config import DORS, K_PREV, N_D, true_rho
 
 
-def generate(scale: str, w_s: float, seed: int, n_d: int = N_D, K: float = K_PREV):
+def generate(scale: str, w_c: float, seed: int, n_d: int = N_D, K: float = K_PREV):
     rng = np.random.default_rng(seed)
     tau = norm.ppf(1.0 - K)
 
@@ -32,7 +32,7 @@ def generate(scale: str, w_s: float, seed: int, n_d: int = N_D, K: float = K_PRE
     next_id = 0
 
     for d in DORS:
-        rho = true_rho(w_s, d)
+        rho = true_rho(w_c, d)
         za = rng.standard_normal(n_d)
         zb = rng.standard_normal(n_d)
         L1 = za

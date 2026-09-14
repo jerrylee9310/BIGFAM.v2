@@ -1,9 +1,9 @@
 """BIGFAM.v1 -- faithful obj1.py band machine (decay class, the earlier estimator).
 
-Same decay class as BIGFAM.v2 (estimates its own w_S) but the old approach:
+Same decay class as BIGFAM.v2 (estimates its own w_C) but the old approach:
 per-DOR resample -> a slope test classifies the decay shape -> that class fixes
 the w search BAND (_setInitialRange) -> nested CV inside the band picks w by
-held-out mse, and (V_G,V_S) are fit by equal-weight log2-SSE -> median over
+held-out mse, and (V_A,V_C) are fit by equal-weight log2-SSE -> median over
 folds. The fit never uses Sigma (off-diagonal unused); only the per-DOR SE
 (the diagonal) enters, via the resample + slope test.
 
@@ -29,7 +29,7 @@ V1_SEED = 20260704                       # default seed for this folder's driver
 
 # ── equal-weight log2-OLS fit at fixed w (obj1 `_lossFunc`) ────────────────────
 def _fit_at_w(logrho, w, iters=12):
-    """min over (V_G,V_S) of  sum_d (log2 rho_d - log2[0.5^d V_G + w^(d-1) V_S])^2  (Gauss-Newton).
+    """min over (V_A,V_C) of  sum_d (log2 rho_d - log2[0.5^d V_A + w^(d-1) V_C])^2  (Gauss-Newton).
     Reproduces obj1.py `_lossFunc` (log2 SSE, Sigma ignored); GN solves the identical objective."""
     N = len(logrho)
     cG = 0.5 ** DOR
@@ -136,7 +136,7 @@ def make(seed=V1_SEED):
         sd = np.asarray(rho.sigma_hat, float)                         # per-DOR SE (RhoEstimate.sigma_hat = sqrt(diag))
         Sig = np.zeros((1, 3, 3)); Sig[0][np.diag_indices(3)] = sd ** 2
         W, G, S, cls = v1_batch(np.asarray(rho.rho_hat, float)[None, :], Sig, rng, return_cls=True)
-        return {"V_G": float(G[0]), "V_S": float(S[0]), "w_s_cal": float(W[0]),
+        return {"V_A": float(G[0]), "V_C": float(S[0]), "w_c_cal": float(W[0]),
                 "decay_class": CLASS_NAME[str(cls[0])]}
 
     return estimate
@@ -144,16 +144,16 @@ def make(seed=V1_SEED):
 
 def _demo():
     """Self-check: clean rho should recover the truth (band machine intact)."""
-    VG, VS, wS = 0.5, 0.2, 0.7
-    rho_hat = np.array([0.5 ** d * VG + wS ** (d - 1) * VS for d in (1, 2, 3)])
+    VA, VC, wC = 0.5, 0.2, 0.7
+    rho_hat = np.array([0.5 ** d * VA + wC ** (d - 1) * VC for d in (1, 2, 3)])
     sd = np.array([0.003, 0.006, 0.009])
     Sig = np.zeros((1, 3, 3)); Sig[0][np.diag_indices(3)] = sd ** 2
     W, G, S = v1_batch(rho_hat[None, :], Sig, np.random.default_rng(0))
-    assert 0.3 < G[0] < 0.7, f"V_G off: {G[0]}"
-    assert 0.0 < S[0] < 0.5, f"V_S off: {S[0]}"
+    assert 0.3 < G[0] < 0.7, f"V_A off: {G[0]}"
+    assert 0.0 < S[0] < 0.5, f"V_C off: {S[0]}"
     est = make(0)(type("R", (), {"rho_hat": rho_hat, "sigma_hat": sd})())
-    assert 0.3 < est["V_G"] < 0.7, f"make V_G off: {est}"
-    print(f"ok: v1_batch V_G={G[0]:.3f} V_S={S[0]:.3f} w_S={W[0]:.3f}  make={est}")
+    assert 0.3 < est["V_A"] < 0.7, f"make V_A off: {est}"
+    print(f"ok: v1_batch V_A={G[0]:.3f} V_C={S[0]:.3f} w_C={W[0]:.3f}  make={est}")
 
 
 if __name__ == "__main__":
