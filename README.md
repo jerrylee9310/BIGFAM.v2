@@ -1,10 +1,10 @@
 # BIGFAM
 
-<img src="docs/img/fig1.png" alt="Genetic vs. shared-environmental decay across degree of relatedness, under four assumptions: AE (no shared environment), ACE with constant, step, or decaying V_C" width="820">
+<img src="docs/img/fig1.png" alt="Genetic vs. common-environmental decay across degree of relatedness, under four assumptions: AE (no common environment), ACE with constant, step, or decaying V_C" width="820">
 
-BIGFAM estimates genetic (`V_A`) and shared-environmental (`V_C`) variance
+BIGFAM estimates genetic (`V_A`) and common-environmental (`V_C`) variance
 from relatives' phenotypes and family structure alone — no genotype data.
-Where most methods fix how shared environment decays with relatedness (none,
+Where most methods fix how common environment decays with relatedness (none,
 constant, or a step), BIGFAM estimates that decay rate (`w_C`) from the data.
 
 ## Install

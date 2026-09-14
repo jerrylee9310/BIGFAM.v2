@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "bigfam"
-version = "0.1.0"
+version = "0.2.0"
 description = "Genetic and shared-environment variance decomposition from relative pairs, without genotypes"
 readme = "README.md"
 requires-python = ">=3.10"
