@@ -20,7 +20,7 @@ from .phase2 import estimate_wc
 from .phase3 import decompose
 from . import io
 
-__version__ = "0.1.0"
+__version__ = "0.2.1"
 
 __all__ = [
     "estimate_rho", "estimate_wc", "decompose",

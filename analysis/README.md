@@ -2,7 +2,8 @@
 
 One folder per figure. Simulation figures (Figs. 2, S1–S3, S7) run on
 synthetic data; real-data figures (Figs. 3–5, S4–S6, S8) read the trait-level
-table published as the paper's supplementary data. Fig. 1 is a schematic —
+table published with the paper as Supplementary Data 1
+(Additional file 2 of the article). Fig. 1 is a schematic —
 no code here.
 
 
@@ -22,7 +23,7 @@ no code here.
 ## Quick start
 
 ```bash
-cd BIGFAM.v2-publish
+cd BIGFAM.v2
 python3 -m venv .venv && .venv/bin/pip install -e ".[analysis]"
 
 # self-contained, no external tools (a few minutes each):

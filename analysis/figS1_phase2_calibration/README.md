@@ -37,7 +37,7 @@ data of any kind is involved.
 ## Run
 
 ```bash
-cd BIGFAM.v2-publish
+cd BIGFAM.v2
 python3 -m venv .venv && .venv/bin/pip install -e ".[analysis]"
 .venv/bin/python analysis/figS1_phase2_calibration/generate.py   # ~5-6 min, writes figS1.csv (200k rows)
 .venv/bin/python analysis/figS1_phase2_calibration/plot.py       # seconds, writes figS1.png
