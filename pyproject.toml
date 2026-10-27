@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "Genetic and shared-environment variance decomposition from relative pairs, without genotypes"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { file = "LICENSE" }
+license = { text = "MIT" }
 authors = [
     { name = "Jaeeun Lee" },
     { name = "Buhm Han" },
@@ -16,7 +16,7 @@ authors = [
 keywords = ["genetics", "heritability", "shared environment", "variance decomposition"]
 classifiers = [
     "Intended Audience :: Science/Research",
-    "License :: Other/Proprietary License",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]

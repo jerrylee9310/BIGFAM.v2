@@ -1,0 +1,10 @@
+{
+  "title": "BIGFAM.v2: joint estimation of common-environmental decay and heritability from relative pairs",
+  "upload_type": "software",
+  "creators": [
+    {"name": "Lee, Jaeeun"},
+    {"name": "Han, Buhm"}
+  ],
+  "license": "MIT",
+  "keywords": ["genetics", "heritability", "shared environment", "variance decomposition"]
+}

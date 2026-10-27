@@ -85,4 +85,4 @@ Derivations are in the papers below, not in this repository.
 
 ## License
 
-Non-commercial academic research use — see `LICENSE`.
+Released under the MIT License — see `LICENSE`.
